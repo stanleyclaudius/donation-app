@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS fundraisers;
+
+DROP TABLE IF EXISTS donations;
+
+DROP TABLE IF EXISTS campaigns;
+
+DROP TABLE IF EXISTS withdrawn;
+
+DROP TABLE IF EXISTS types;

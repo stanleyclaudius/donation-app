@@ -8,10 +8,10 @@ dropdb:
 	docker exec -it donation-app-db dropdb --username=root donation_app
 
 migrateup:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5433/donation_app?sslmode=disable" -verbose up
+	migrate -path pkg/migration -database "postgresql://root:secret@localhost:5433/donation_app?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5433/donation_app?sslmode=disable" -verbose down
+	migrate -path pkg/migration -database "postgresql://root:secret@localhost:5433/donation_app?sslmode=disable" -verbose down
 
 test:
 	go test -v -cover ./...
