@@ -143,6 +143,43 @@ func (service *UserServiceImpl) Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"access_token": accessToken, "user": newUserResponse(user)})
 }
 
+func (service *UserServiceImpl) RefreshToken(ctx *gin.Context) {
+	cookie, err := ctx.Cookie("donation_app_rf_token")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Cookie is invalid."})
+		return
+	}
+
+	payload, err := service.PasetoToken.VerifyToken(cookie)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err})
+		return
+	}
+
+	arg := repository.GetUserByIDParams{
+		ID: payload.UserID,
+	}
+
+	user, err := service.UserRepository.GetById(ctx, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found."})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user. Please try again later."})
+		return
+	}
+
+	accessToken, err := service.PasetoToken.CreateToken(user.ID, service.Config.AccessTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"access_token": accessToken, "user": newUserResponse(user)})
+}
+
 func (service *UserServiceImpl) Logout(ctx *gin.Context) {
 	authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
 
