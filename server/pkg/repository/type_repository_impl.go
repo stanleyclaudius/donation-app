@@ -35,7 +35,11 @@ func (repository *TypeRepositoryImpl) Save(ctx context.Context, arg SaveTypePara
 	return campaignType, err
 }
 
-func (repository *TypeRepositoryImpl) GetOneByID(ctx context.Context, arg DeleteTypeParams) (model.Type, error) {
+type TypeIDParams struct {
+	ID int64 `json:"id"`
+}
+
+func (repository *TypeRepositoryImpl) GetOneByID(ctx context.Context, arg TypeIDParams) (model.Type, error) {
 	var campaignType model.Type
 
 	sqlStatement := "SELECT * FROM types WHERE id = $1 LIMIT 1"
@@ -125,11 +129,7 @@ func (repository *TypeRepositoryImpl) Update(ctx context.Context, arg UpdateType
 	return campaignType, err
 }
 
-type DeleteTypeParams struct {
-	ID int64 `json:"id"`
-}
-
-func (repository *TypeRepositoryImpl) Delete(ctx context.Context, arg DeleteTypeParams) error {
+func (repository *TypeRepositoryImpl) Delete(ctx context.Context, arg TypeIDParams) error {
 	sqlStatement := "DELETE FROM types WHERE id = $1"
 	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.ID)
 	return err

@@ -94,7 +94,7 @@ func (service *TypeServiceImpl) UpdateType(ctx *gin.Context) {
 		return
 	}
 
-	getDataArg := repository.DeleteTypeParams{
+	getDataArg := repository.TypeIDParams{
 		ID: uriReq.ID,
 	}
 
@@ -131,7 +131,7 @@ func (service *TypeServiceImpl) DeleteType(ctx *gin.Context) {
 		return
 	}
 
-	arg := repository.DeleteTypeParams{
+	arg := repository.TypeIDParams{
 		ID: req.ID,
 	}
 
@@ -153,5 +153,5 @@ func (service *TypeServiceImpl) DeleteType(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Campaign type has been dleeted successfully."})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Campaign type has been deleted successfully."})
 }
