@@ -31,7 +31,7 @@ func NewServer(config util.Config, db *sql.DB) *Server {
 }
 
 func (server *Server) InitRouter() {
-	accountService := service.NewUserService(server.DB)
+	accountService := service.NewUserService(server.DB, server.Config, server.PasetoToken)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -42,8 +42,11 @@ func (server *Server) InitRouter() {
 	}))
 
 	routerGroup := router.Group("/api/v1")
+	middlewareGroup := routerGroup.Group("/").Use(util.AuthMiddleware(server.PasetoToken))
 
 	routerGroup.POST("/auth/register", accountService.Register)
+	routerGroup.POST("/auth/login", accountService.Login)
+	middlewareGroup.GET("/auth/logout", accountService.Logout)
 
 	router.Run(server.Config.ServerAddress)
 }
