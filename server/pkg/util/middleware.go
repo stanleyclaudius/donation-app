@@ -1,6 +1,8 @@
 package util
 
 import (
+	"database/sql"
+	"donation_app/pkg/repository"
 	"donation_app/pkg/token"
 	"errors"
 	"fmt"
@@ -41,6 +43,35 @@ func AuthMiddleware(pasetoToken *token.PasetoToken) gin.HandlerFunc {
 		}
 
 		ctx.Set("authorization_payload", payload)
+		ctx.Next()
+	}
+}
+
+func AdminMiddleware(db *sql.DB) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
+		userRepository := repository.NewUserRepository(db)
+
+		arg := repository.GetUserByIDParams{
+			ID: authPayload.UserID,
+		}
+
+		user, err := userRepository.GetById(ctx, arg)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "User not found."})
+				return
+			}
+
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user. Please try again later."})
+			return
+		}
+
+		if user.Role != "admin" {
+			err := fmt.Errorf("%s role doesn't have access to this resource", user.Role)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		}
+
 		ctx.Next()
 	}
 }

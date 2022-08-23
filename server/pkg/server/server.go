@@ -44,13 +44,14 @@ func (server *Server) InitRouter() {
 
 	routerGroup := router.Group("/api/v1")
 	middlewareGroup := routerGroup.Group("/").Use(util.AuthMiddleware(server.PasetoToken))
+	adminGroup := middlewareGroup.Use(util.AdminMiddleware(server.DB))
 
 	routerGroup.POST("/auth/register", userService.Register)
 	routerGroup.POST("/auth/login", userService.Login)
 	routerGroup.GET("/auth/refresh_token", userService.RefreshToken)
 	middlewareGroup.GET("/auth/logout", userService.Logout)
 
-	routerGroup.POST("/type", typeService.CreateType)
+	adminGroup.POST("/type", typeService.CreateType)
 
 	router.Run(server.Config.ServerAddress)
 }
