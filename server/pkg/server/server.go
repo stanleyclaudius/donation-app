@@ -32,6 +32,7 @@ func NewServer(config util.Config, db *sql.DB) *Server {
 
 func (server *Server) InitRouter() {
 	userService := service.NewUserService(server.DB, server.Config, server.PasetoToken)
+	typeService := service.NewTypeService(server.DB)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -48,6 +49,8 @@ func (server *Server) InitRouter() {
 	routerGroup.POST("/auth/login", userService.Login)
 	routerGroup.GET("/auth/refresh_token", userService.RefreshToken)
 	middlewareGroup.GET("/auth/logout", userService.Logout)
+
+	routerGroup.POST("/type", typeService.CreateType)
 
 	router.Run(server.Config.ServerAddress)
 }
