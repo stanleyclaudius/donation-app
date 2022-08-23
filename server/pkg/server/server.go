@@ -51,7 +51,10 @@ func (server *Server) InitRouter() {
 	routerGroup.GET("/auth/refresh_token", userService.RefreshToken)
 	middlewareGroup.GET("/auth/logout", userService.Logout)
 
+	routerGroup.GET("/type", typeService.GetAllTypes)
 	adminGroup.POST("/type", typeService.CreateType)
+	adminGroup.PATCH("/type/:id", typeService.UpdateType)
+	adminGroup.DELETE("/type/:id", typeService.DeleteType)
 
 	router.Run(server.Config.ServerAddress)
 }
