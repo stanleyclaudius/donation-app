@@ -69,3 +69,82 @@ func (service *CampaignServiceImpl) CreateCampaign(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign})
 }
+
+type CampaignIDURI struct {
+	ID int64 `uri:"id" binding:"required"`
+}
+
+func (service *CampaignServiceImpl) GetCampaign(ctx *gin.Context) {
+	var req CampaignIDURI
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide campaign ID."})
+		return
+	}
+
+	arg := repository.CampaignIDParams{
+		ID: req.ID,
+	}
+
+	campaign, err := service.CampaignRepository.GetOneByID(ctx, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err := fmt.Errorf("campaign with id %d not found", req.ID)
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaign data. Please try again later."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign})
+}
+
+type GetCampaignsRequest struct {
+	Page  int64 `form:"page"`
+	Limit int64 `form:"limit"`
+}
+
+func (service *CampaignServiceImpl) GetCampaigns(ctx *gin.Context) {
+	var req GetCampaignsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
+		return
+	}
+
+	arg := repository.GetManyCampaignParams{
+		Limit:  req.Limit,
+		Offset: (req.Page - 1) * req.Limit,
+	}
+
+	campaigns, err := service.CampaignRepository.GetMany(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaigns data. Please try again later."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns})
+}
+
+func (service *CampaignServiceImpl) GetFundraiserCampaigns(ctx *gin.Context) {
+	fundraiserID := ctx.MustGet("fundraiser_id").(int64)
+
+	var req GetCampaignsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
+		return
+	}
+
+	arg := repository.GetManyCampaignByFundraiserParams{
+		FundraiserID: fundraiserID,
+		Limit:        req.Limit,
+		Offset:       (req.Page - 1) * req.Limit,
+	}
+
+	campaigns, err := service.CampaignRepository.GetManyByFundraiser(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve fundraiser campaigns data. Please try again later."})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns})
+}
