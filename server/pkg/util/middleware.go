@@ -75,3 +75,48 @@ func AdminMiddleware(db *sql.DB) gin.HandlerFunc {
 		ctx.Next()
 	}
 }
+
+func FundraiserMiddleware(db *sql.DB) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
+		userRepository := repository.NewUserRepository(db)
+		fundraiserRepository := repository.NewFundraiserRepository(db)
+
+		userArg := repository.GetUserByIDParams{
+			ID: authPayload.UserID,
+		}
+
+		user, err := userRepository.GetById(ctx, userArg)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "User not found."})
+				return
+			}
+
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user. Please try again later."})
+			return
+		}
+
+		if user.Role != "fundraiser" {
+			err := fmt.Errorf("%s role doesn't have access to this resource", user.Role)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		}
+
+		fundraiserArg := repository.GetFundraiserByUserIDParams{
+			UserID: user.ID,
+		}
+
+		_, err = fundraiserRepository.GetOneByUserID(ctx, fundraiserArg)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Fundraiser not found."})
+				return
+			}
+
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve fundraiser. Please try again later."})
+			return
+		}
+
+		ctx.Next()
+	}
+}
