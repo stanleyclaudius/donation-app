@@ -85,3 +85,14 @@ func (repository *UserRepositoryImpl) GetById(ctx context.Context, arg GetUserBy
 
 	return user, err
 }
+
+type UpdateUserParams struct {
+	ID   int64  `json:"id"`
+	Role string `json:"role"`
+}
+
+func (repository *UserRepositoryImpl) Update(ctx context.Context, arg UpdateUserParams) error {
+	sqlStatement := "UPDATE users SET role = $1 WHERE id = $2"
+	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.Role, arg.ID)
+	return err
+}

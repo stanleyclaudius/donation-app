@@ -49,7 +49,7 @@ type GetFundraiserByUserIDParams struct {
 func (repository *FundraiserRepositoryImpl) GetOneByUserID(ctx context.Context, arg GetFundraiserByUserIDParams) (model.Fundraiser, error) {
 	var fundraiser model.Fundraiser
 
-	sqlStatement := "SELECT * FROM fundraiser WHERE user_id = $1"
+	sqlStatement := "SELECT * FROM fundraisers WHERE user_id = $1"
 	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.UserID)
 
 	err := row.Scan(
@@ -63,4 +63,44 @@ func (repository *FundraiserRepositoryImpl) GetOneByUserID(ctx context.Context, 
 	)
 
 	return fundraiser, err
+}
+
+type FundraiserIDParams struct {
+	ID int64 `json:"id"`
+}
+
+func (repository *FundraiserRepositoryImpl) GetOneByID(ctx context.Context, arg FundraiserIDParams) (model.Fundraiser, error) {
+	var fundraiser model.Fundraiser
+
+	sqlStatement := "SELECT * FROM fundraisers WHERE id = $1"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.ID)
+
+	err := row.Scan(
+		&fundraiser.ID,
+		&fundraiser.UserID,
+		&fundraiser.Phone,
+		&fundraiser.Address,
+		&fundraiser.Description,
+		&fundraiser.IsActive,
+		&fundraiser.CreatedAt,
+	)
+
+	return fundraiser, err
+}
+
+type UpdateFundraiserParams struct {
+	ID       int64 `json:"id"`
+	IsActive bool  `json:"is_active"`
+}
+
+func (repository *FundraiserRepositoryImpl) Update(ctx context.Context, arg UpdateFundraiserParams) error {
+	sqlStatement := "UPDATE fundraisers SET is_active = $1 WHERE id = $2"
+	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.IsActive, arg.ID)
+	return err
+}
+
+func (repository *FundraiserRepositoryImpl) Delete(ctx context.Context, arg FundraiserIDParams) error {
+	sqlStatement := "DELETE FROM fundraisers WHERE id = $1"
+	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.ID)
+	return err
 }
