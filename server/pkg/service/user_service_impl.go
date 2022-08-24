@@ -105,11 +105,11 @@ func (service *UserServiceImpl) Login(ctx *gin.Context) {
 		return
 	}
 
-	arg := repository.GetUserByEmailParams{
+	arg := repository.GetOneUserByEmailParams{
 		Email: req.Email,
 	}
 
-	user, err := service.UserRepository.GetByEmail(ctx, arg)
+	user, err := service.UserRepository.GetOneByEmail(ctx, arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credential."})
@@ -156,11 +156,11 @@ func (service *UserServiceImpl) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	arg := repository.GetUserByIDParams{
+	arg := repository.GetOneUserByIDParams{
 		ID: payload.UserID,
 	}
 
-	user, err := service.UserRepository.GetById(ctx, arg)
+	user, err := service.UserRepository.GetOneById(ctx, arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found."})
@@ -183,11 +183,11 @@ func (service *UserServiceImpl) RefreshToken(ctx *gin.Context) {
 func (service *UserServiceImpl) Logout(ctx *gin.Context) {
 	authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
 
-	arg := repository.GetUserByIDParams{
+	arg := repository.GetOneUserByIDParams{
 		ID: authPayload.UserID,
 	}
 
-	_, err := service.UserRepository.GetById(ctx, arg)
+	_, err := service.UserRepository.GetOneById(ctx, arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not found."})

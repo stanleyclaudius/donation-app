@@ -52,11 +52,11 @@ func AdminMiddleware(db *sql.DB) gin.HandlerFunc {
 		authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
 		userRepository := repository.NewUserRepository(db)
 
-		arg := repository.GetUserByIDParams{
+		arg := repository.GetOneUserByIDParams{
 			ID: authPayload.UserID,
 		}
 
-		user, err := userRepository.GetById(ctx, arg)
+		user, err := userRepository.GetOneById(ctx, arg)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "User not found."})
@@ -82,11 +82,11 @@ func FundraiserMiddleware(db *sql.DB) gin.HandlerFunc {
 		userRepository := repository.NewUserRepository(db)
 		fundraiserRepository := repository.NewFundraiserRepository(db)
 
-		userArg := repository.GetUserByIDParams{
+		userArg := repository.GetOneUserByIDParams{
 			ID: authPayload.UserID,
 		}
 
-		user, err := userRepository.GetById(ctx, userArg)
+		user, err := userRepository.GetOneById(ctx, userArg)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "User not found."})

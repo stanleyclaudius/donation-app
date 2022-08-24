@@ -40,11 +40,11 @@ func (repository *UserRepositoryImpl) Save(ctx context.Context, arg SaveUserPara
 	return user, err
 }
 
-type GetUserByEmailParams struct {
+type GetOneUserByEmailParams struct {
 	Email string `json:"email"`
 }
 
-func (repository *UserRepositoryImpl) GetByEmail(ctx context.Context, arg GetUserByEmailParams) (model.User, error) {
+func (repository *UserRepositoryImpl) GetOneByEmail(ctx context.Context, arg GetOneUserByEmailParams) (model.User, error) {
 	var user model.User
 
 	sqlStatement := "SELECT * FROM users WHERE email = $1"
@@ -63,11 +63,11 @@ func (repository *UserRepositoryImpl) GetByEmail(ctx context.Context, arg GetUse
 	return user, err
 }
 
-type GetUserByIDParams struct {
+type GetOneUserByIDParams struct {
 	ID int64 `json:"id"`
 }
 
-func (repository *UserRepositoryImpl) GetById(ctx context.Context, arg GetUserByIDParams) (model.User, error) {
+func (repository *UserRepositoryImpl) GetOneById(ctx context.Context, arg GetOneUserByIDParams) (model.User, error) {
 	var user model.User
 
 	sqlStatement := "SELECT * FROM users WHERE id = $1"

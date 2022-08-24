@@ -7,7 +7,7 @@ import (
 
 type UserRepository interface {
 	Save(ctx context.Context, arg SaveUserParams) (model.User, error)
-	GetById(ctx context.Context, arg GetUserByIDParams) (model.User, error)
-	GetByEmail(ctx context.Context, arg GetUserByEmailParams) (model.User, error)
+	GetOneById(ctx context.Context, arg GetOneUserByIDParams) (model.User, error)
+	GetOneByEmail(ctx context.Context, arg GetOneUserByEmailParams) (model.User, error)
 	UpdateRole(ctx context.Context, arg UpdateUserRoleParams) error
 }
