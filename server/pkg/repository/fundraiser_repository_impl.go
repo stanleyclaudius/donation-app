@@ -147,12 +147,12 @@ func (repository *FundraiserRepositoryImpl) GetMany(ctx context.Context, arg Get
 	return items, nil
 }
 
-type UpdateFundraiserParams struct {
+type UpdateFundraiserStatusParams struct {
 	ID       int64 `json:"id"`
 	IsActive bool  `json:"is_active"`
 }
 
-func (repository *FundraiserRepositoryImpl) Update(ctx context.Context, arg UpdateFundraiserParams) error {
+func (repository *FundraiserRepositoryImpl) UpdateStatus(ctx context.Context, arg UpdateFundraiserStatusParams) error {
 	sqlStatement := "UPDATE fundraisers SET is_active = $1 WHERE id = $2"
 	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.IsActive, arg.ID)
 	return err

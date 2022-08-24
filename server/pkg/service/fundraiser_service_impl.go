@@ -138,23 +138,23 @@ func (service *FundraiserServiceImpl) ChangeFundraiserStatus(ctx *gin.Context) {
 		return
 	}
 
-	updateFundraiserArg := repository.UpdateFundraiserParams{
+	updateFundraiserArg := repository.UpdateFundraiserStatusParams{
 		ID:       uriReq.ID,
 		IsActive: jsonReq.IsActive,
 	}
 
-	err = service.FundraiserRepository.Update(ctx, updateFundraiserArg)
+	err = service.FundraiserRepository.UpdateStatus(ctx, updateFundraiserArg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to change fundraiser status. Please try again later."})
 		return
 	}
 
-	updateUserArg := repository.UpdateUserParams{
+	updateUserArg := repository.UpdateUserRoleParams{
 		ID:   fundraiser.UserID,
 		Role: "fundraiser",
 	}
 
-	err = service.UserRepository.Update(ctx, updateUserArg)
+	err = service.UserRepository.UpdateRole(ctx, updateUserArg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user role. Please try again later."})
 		return
