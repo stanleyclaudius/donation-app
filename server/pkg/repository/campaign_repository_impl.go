@@ -176,7 +176,7 @@ type GetManyCampaignByFundraiserParams struct {
 func (repository *CampaignRepositoryImpl) GetManyByFundraiser(ctx context.Context, arg GetManyCampaignByFundraiserParams) ([]model.Campaign, error) {
 	sqlStatement := "SELECT * FROM campaigns WHERE fundraiser_id = $1"
 	if arg.Limit < 1 {
-		sqlStatement += " LIMIT (SELECT COUNT(id) FROM campaigns) OFFSET 0"
+		sqlStatement += " LIMIT (SELECT COUNT(id) FROM campaigns WHERE fundraiser_id = $1) OFFSET 0"
 	} else {
 		sqlStatement += " LIMIT $2 OFFSET $3"
 	}
@@ -273,4 +273,15 @@ func (repository *CampaignRepositoryImpl) Update(ctx context.Context, arg Update
 	)
 
 	return campaign, err
+}
+
+type UpdateCollectedAmountParams struct {
+	CampaignID int64   `json:"campaign_id"`
+	Amount     float64 `json:"amount"`
+}
+
+func (repository *CampaignRepositoryImpl) UpdateCollectedAmount(ctx context.Context, arg UpdateCollectedAmountParams) error {
+	sqlStatement := "UPDATE campaigns SET collected_amount = $1 WHERE id = $2"
+	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.Amount, arg.CampaignID)
+	return err
 }

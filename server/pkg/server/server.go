@@ -35,6 +35,7 @@ func (server *Server) InitRouter() {
 	typeService := service.NewTypeService(server.DB)
 	fundraiserService := service.NewFundraiserService(server.DB)
 	campaignService := service.NewCampaignService(server.DB)
+	donationService := service.NewDonationService(server.DB)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -70,6 +71,8 @@ func (server *Server) InitRouter() {
 	fundraiserGroup.GET("/campaign/fundraiser", campaignService.GetFundraiserCampaigns)
 	fundraiserGroup.DELETE("/campaign/:id", campaignService.DeleteCampaign)
 	fundraiserGroup.PATCH("/campaign/:id", campaignService.UpdateCampaign)
+
+	middlewareGroup.POST("/donation", donationService.CreateDonation)
 
 	router.Run(server.Config.ServerAddress)
 }
