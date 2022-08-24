@@ -241,3 +241,36 @@ func (repository *CampaignRepositoryImpl) Delete(ctx context.Context, arg Delete
 	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.ID, arg.FundraiserID)
 	return err
 }
+
+type UpdateCampaignParams struct {
+	ID           int64   `json:"id"`
+	TypeID       int64   `json:"type_id"`
+	Title        string  `json:"title"`
+	Description  string  `json:"description"`
+	Image        string  `json:"image"`
+	TargetAmount float64 `json:"target_amount"`
+	Slug         string  `json:"slug"`
+}
+
+func (repository *CampaignRepositoryImpl) Update(ctx context.Context, arg UpdateCampaignParams) (model.Campaign, error) {
+	var campaign model.Campaign
+
+	sqlStatement := "UPDATE campaigns SET type_id = $1, title = $2, description = $3, image = $4, target_amount = $5, slug = $6 WHERE id = $7 RETURNING id, fundraiser_id, type_id, title, description, image, collected_amount, target_amount, withdrawn_amount, slug, created_at"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.TypeID, arg.Title, arg.Description, arg.Image, arg.TargetAmount, arg.Slug, arg.ID)
+
+	err := row.Scan(
+		&campaign.ID,
+		&campaign.FundraiserID,
+		&campaign.TypeID,
+		&campaign.Title,
+		&campaign.Description,
+		&campaign.Image,
+		&campaign.CollectedAmount,
+		&campaign.TargetAmount,
+		&campaign.WithdrawnAmount,
+		&campaign.Slug,
+		&campaign.CreatedAt,
+	)
+
+	return campaign, err
+}

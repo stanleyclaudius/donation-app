@@ -187,3 +187,68 @@ func (service *CampaignServiceImpl) DeleteCampaign(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Campaign has been deleted successfully."})
 }
+
+type UpdateCampaignRequest struct {
+	TypeID       int64   `json:"type_id" binding:"required"`
+	Title        string  `json:"title" binding:"required"`
+	Description  string  `json:"description" binding:"required"`
+	Image        string  `json:"image" binding:"required"`
+	TargetAmount float64 `json:"target_amount" binding:"required"`
+}
+
+func (service *CampaignServiceImpl) UpdateCampaign(ctx *gin.Context) {
+	fundraiserID := ctx.MustGet("fundraiser_id").(int64)
+	var jsonReq UpdateCampaignRequest
+	if err := ctx.ShouldBindJSON(&jsonReq); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide required field to update campaign."})
+		return
+	}
+
+	var uriReq CampaignIDURI
+	if err := ctx.ShouldBindUri(&uriReq); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide campaign ID."})
+		return
+	}
+
+	checkCampaignArg := repository.GetOneCampaignByFundraiserParams{
+		ID:           uriReq.ID,
+		FundraiserID: fundraiserID,
+	}
+
+	_, err := service.CampaignRepository.GetOneByFundraiserID(ctx, checkCampaignArg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Campaign is not belong to current authenticated fundraiser."})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaign data. Please try again later."})
+		return
+	}
+
+	updateArg := repository.UpdateCampaignParams{
+		ID:           uriReq.ID,
+		TypeID:       jsonReq.TypeID,
+		Title:        jsonReq.Title,
+		Description:  jsonReq.Description,
+		Image:        jsonReq.Image,
+		TargetAmount: jsonReq.TargetAmount,
+		Slug:         strings.Replace(strings.ToLower(jsonReq.Title), " ", "-", -1),
+	}
+
+	campaign, err := service.CampaignRepository.Update(ctx, updateArg)
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "unique_violation":
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campaign title has been used before."})
+				return
+			}
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update campaign. Please try again later."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign})
+}

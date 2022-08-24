@@ -100,6 +100,7 @@ func FundraiserMiddleware(db *sql.DB) gin.HandlerFunc {
 		if user.Role != "fundraiser" {
 			err := fmt.Errorf("%s role doesn't have access to this resource", user.Role)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
 		}
 
 		fundraiserArg := repository.GetFundraiserByUserIDParams{

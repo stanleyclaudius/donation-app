@@ -8,4 +8,5 @@ type CampaignService interface {
 	GetCampaigns(ctx *gin.Context)
 	GetFundraiserCampaigns(ctx *gin.Context)
 	DeleteCampaign(ctx *gin.Context)
+	UpdateCampaign(ctx *gin.Context)
 }
