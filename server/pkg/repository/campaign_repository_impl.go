@@ -76,6 +76,34 @@ func (repository *CampaignRepositoryImpl) GetOneByID(ctx context.Context, arg Ca
 	return campaign, err
 }
 
+type GetOneCampaignByFundraiserParams struct {
+	ID           int64 `json:"id"`
+	FundraiserID int64 `json:"fundraiser_id"`
+}
+
+func (repository *CampaignRepositoryImpl) GetOneByFundraiserID(ctx context.Context, arg GetOneCampaignByFundraiserParams) (model.Campaign, error) {
+	var campaign model.Campaign
+
+	sqlStatement := "SELECT * FROM campaigns WHERE id = $1 AND fundraiser_id = $2"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.ID, arg.FundraiserID)
+
+	err := row.Scan(
+		&campaign.ID,
+		&campaign.FundraiserID,
+		&campaign.TypeID,
+		&campaign.Title,
+		&campaign.Description,
+		&campaign.Image,
+		&campaign.CollectedAmount,
+		&campaign.TargetAmount,
+		&campaign.WithdrawnAmount,
+		&campaign.Slug,
+		&campaign.CreatedAt,
+	)
+
+	return campaign, err
+}
+
 type GetManyCampaignParams struct {
 	Limit  int64 `json:"limit"`
 	Offset int64 `json:"offset"`
@@ -201,4 +229,15 @@ func (repository *CampaignRepositoryImpl) GetManyByFundraiser(ctx context.Contex
 	}
 
 	return items, err
+}
+
+type DeleteCampaignParams struct {
+	ID           int64 `json:"id"`
+	FundraiserID int64 `json:"fundraiser_id"`
+}
+
+func (repository *CampaignRepositoryImpl) Delete(ctx context.Context, arg DeleteCampaignParams) error {
+	sqlStatement := "DELETE FROM campaigns WHERE id = $1 AND fundraiser_id = $2"
+	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.ID, arg.FundraiserID)
+	return err
 }

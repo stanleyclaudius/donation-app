@@ -68,6 +68,7 @@ func (server *Server) InitRouter() {
 	routerGroup.GET("/campaign/:id", campaignService.GetCampaign)
 	routerGroup.GET("/campaign", campaignService.GetCampaigns)
 	fundraiserGroup.GET("/campaign/fundraiser", campaignService.GetFundraiserCampaigns)
+	fundraiserGroup.DELETE("/campaign/:id", campaignService.DeleteCampaign)
 
 	router.Run(server.Config.ServerAddress)
 }

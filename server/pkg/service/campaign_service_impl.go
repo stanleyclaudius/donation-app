@@ -148,3 +148,42 @@ func (service *CampaignServiceImpl) GetFundraiserCampaigns(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns})
 }
+
+func (service *CampaignServiceImpl) DeleteCampaign(ctx *gin.Context) {
+	fundraiserID := ctx.MustGet("fundraiser_id").(int64)
+
+	var req CampaignIDURI
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide campaign ID."})
+		return
+	}
+
+	checkCampaignArg := repository.GetOneCampaignByFundraiserParams{
+		ID:           req.ID,
+		FundraiserID: fundraiserID,
+	}
+
+	_, err := service.CampaignRepository.GetOneByFundraiserID(ctx, checkCampaignArg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Campaign is not belong to current authenticated fundraiser."})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaign data. Please try again later."})
+		return
+	}
+
+	deleteArg := repository.DeleteCampaignParams{
+		ID:           req.ID,
+		FundraiserID: fundraiserID,
+	}
+
+	err = service.CampaignRepository.Delete(ctx, deleteArg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Campaign has been deleted successfully."})
+}
