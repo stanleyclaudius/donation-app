@@ -106,7 +106,7 @@ func FundraiserMiddleware(db *sql.DB) gin.HandlerFunc {
 			UserID: user.ID,
 		}
 
-		_, err = fundraiserRepository.GetOneByUserID(ctx, fundraiserArg)
+		fundraiser, err := fundraiserRepository.GetOneByUserID(ctx, fundraiserArg)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Fundraiser not found."})
@@ -117,6 +117,7 @@ func FundraiserMiddleware(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
+		ctx.Set("fundraiser_id", fundraiser.ID)
 		ctx.Next()
 	}
 }
