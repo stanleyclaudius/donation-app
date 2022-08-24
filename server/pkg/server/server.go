@@ -73,6 +73,8 @@ func (server *Server) InitRouter() {
 	fundraiserGroup.PATCH("/campaign/:id", campaignService.UpdateCampaign)
 
 	middlewareGroup.POST("/donation", donationService.CreateDonation)
+	middlewareGroup.GET("/donation", donationService.GetDonationHistory)
+	routerGroup.GET("/donation/:campaign_id", donationService.GetCampaignDonation)
 
 	router.Run(server.Config.ServerAddress)
 }
