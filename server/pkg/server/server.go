@@ -59,6 +59,7 @@ func (server *Server) InitRouter() {
 
 	middlewareGroup.POST("/fundraiser", fundraiserService.CreateFundraiser)
 	adminGroup.PATCH("/fundraiser/status/:id", fundraiserService.ChangeFundraiserStatus)
+	adminGroup.DELETE("/fundraiser/:id", fundraiserService.DeleteFundraiser)
 
 	router.Run(server.Config.ServerAddress)
 }

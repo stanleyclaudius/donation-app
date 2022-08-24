@@ -77,7 +77,7 @@ type UpdateTypeRequest struct {
 	Title string `json:"title" binding:"required"`
 }
 
-type UpdateTypeURI struct {
+type TypeIDURI struct {
 	ID int64 `uri:"id" binding:"required"`
 }
 
@@ -88,7 +88,7 @@ func (service *TypeServiceImpl) UpdateType(ctx *gin.Context) {
 		return
 	}
 
-	var uriReq UpdateTypeURI
+	var uriReq TypeIDURI
 	if err := ctx.ShouldBindUri(&uriReq); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide type ID."})
 		return
@@ -125,7 +125,7 @@ func (service *TypeServiceImpl) UpdateType(ctx *gin.Context) {
 }
 
 func (service *TypeServiceImpl) DeleteType(ctx *gin.Context) {
-	var req UpdateTypeURI
+	var req TypeIDURI
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide campaign type ID."})
 		return

@@ -80,7 +80,7 @@ type ChangeFundraiserStatusRequest struct {
 	IsActive bool `json:"is_active" binding:"required"`
 }
 
-type ChangeFundraiserStatusURI struct {
+type FundraiserIDURI struct {
 	ID int64 `uri:"id" binding:"required"`
 }
 
@@ -91,7 +91,7 @@ func (service *FundraiserServiceImpl) ChangeFundraiserStatus(ctx *gin.Context) {
 		return
 	}
 
-	var uriReq ChangeFundraiserStatusURI
+	var uriReq FundraiserIDURI
 	if err := ctx.ShouldBindUri(&uriReq); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide fundraiser ID."})
 		return
@@ -138,5 +138,32 @@ func (service *FundraiserServiceImpl) ChangeFundraiserStatus(ctx *gin.Context) {
 }
 
 func (service *FundraiserServiceImpl) DeleteFundraiser(ctx *gin.Context) {
+	var req FundraiserIDURI
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide fundraiser ID."})
+		return
+	}
 
+	arg := repository.FundraiserIDParams{
+		ID: req.ID,
+	}
+
+	_, err := service.FundraiserRepository.GetOneByID(ctx, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Fundraiser not found."})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve fundraiser data. Please try again later."})
+		return
+	}
+
+	err = service.FundraiserRepository.Delete(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete fundraiser. Please try again later."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Fundraiser has been deleted successfully."})
 }
