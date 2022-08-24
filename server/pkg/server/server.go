@@ -58,6 +58,7 @@ func (server *Server) InitRouter() {
 	adminGroup.DELETE("/type/:id", typeService.DeleteType)
 
 	middlewareGroup.POST("/fundraiser", fundraiserService.CreateFundraiser)
+	adminGroup.GET("/fundraiser", fundraiserService.GetAllFundraisers)
 	adminGroup.PATCH("/fundraiser/status/:id", fundraiserService.ChangeFundraiserStatus)
 	adminGroup.DELETE("/fundraiser/:id", fundraiserService.DeleteFundraiser)
 

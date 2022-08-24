@@ -76,6 +76,32 @@ func (service *FundraiserServiceImpl) CreateFundraiser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"fundraiser": fundraiser})
 }
 
+type GetAllFundraisersRequest struct {
+	Page  int64 `form:"page"`
+	Limit int64 `fomr:"limit"`
+}
+
+func (service *FundraiserServiceImpl) GetAllFundraisers(ctx *gin.Context) {
+	var req GetAllTypesRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
+		return
+	}
+
+	arg := repository.GetManyFundraiserParams{
+		Limit:  req.Limit,
+		Offset: (req.Page - 1) * req.Limit,
+	}
+
+	fundraisers, err := service.FundraiserRepository.GetMany(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve fundraisers. Please try again later."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"fundraisers": fundraisers})
+}
+
 type ChangeFundraiserStatusRequest struct {
 	IsActive bool `json:"is_active" binding:"required"`
 }
