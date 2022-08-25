@@ -73,7 +73,7 @@ func (service *DonationServiceImpl) CreateDonation(ctx *gin.Context) {
 		return
 	}
 
-	updateCollectedAmountArg := repository.UpdateCollectedAmountParams{
+	updateCollectedAmountArg := repository.UpdateAmountParams{
 		CampaignID: req.CampaignID,
 		Amount:     req.Amount + campaign.CollectedAmount,
 	}

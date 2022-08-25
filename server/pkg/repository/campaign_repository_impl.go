@@ -275,13 +275,19 @@ func (repository *CampaignRepositoryImpl) Update(ctx context.Context, arg Update
 	return campaign, err
 }
 
-type UpdateCollectedAmountParams struct {
+type UpdateAmountParams struct {
 	CampaignID int64   `json:"campaign_id"`
 	Amount     float64 `json:"amount"`
 }
 
-func (repository *CampaignRepositoryImpl) UpdateCollectedAmount(ctx context.Context, arg UpdateCollectedAmountParams) error {
+func (repository *CampaignRepositoryImpl) UpdateCollectedAmount(ctx context.Context, arg UpdateAmountParams) error {
 	sqlStatement := "UPDATE campaigns SET collected_amount = $1 WHERE id = $2"
+	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.Amount, arg.CampaignID)
+	return err
+}
+
+func (repository *CampaignRepositoryImpl) UpdateWithdrawnAmount(ctx context.Context, arg UpdateAmountParams) error {
+	sqlStatement := "UPDATE campaigns SET withdrawn_amount = $1 WHERE id = $2"
 	_, err := repository.DB.ExecContext(ctx, sqlStatement, arg.Amount, arg.CampaignID)
 	return err
 }

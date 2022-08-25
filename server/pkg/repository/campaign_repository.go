@@ -13,5 +13,6 @@ type CampaignRepository interface {
 	GetManyByFundraiser(ctx context.Context, arg GetManyCampaignByFundraiserParams) ([]model.Campaign, error)
 	Delete(ctx context.Context, arg DeleteCampaignParams) error
 	Update(ctx context.Context, arg UpdateCampaignParams) (model.Campaign, error)
-	UpdateCollectedAmount(ctx context.Context, arg UpdateCollectedAmountParams) error
+	UpdateCollectedAmount(ctx context.Context, arg UpdateAmountParams) error
+	UpdateWithdrawnAmount(ctx context.Context, arg UpdateAmountParams) error
 }
