@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"donation_app/pkg/repository"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -85,6 +86,55 @@ func (service *WithdrawServiceImpl) CreateWithdraw(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Withdraw has been done successfully."})
 }
 
-func (service *WithdrawServiceImpl) GetCampaignWithdraw(ctx *gin.Context) {
+type GetCampaignWithdrawURI struct {
+	CampaignID int64 `uri:"campaign_id" binding:"required"`
+}
 
+type GetCampaignWithdrawRequest struct {
+	Page  int64 `json:"page"`
+	Limit int64 `json:"limit"`
+}
+
+func (service *WithdrawServiceImpl) GetCampaignWithdraw(ctx *gin.Context) {
+	var uriReq GetCampaignWithdrawURI
+	if err := ctx.ShouldBindUri(&uriReq); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide campaign ID."})
+		return
+	}
+
+	var jsonReq GetCampaignWithdrawRequest
+	if err := ctx.ShouldBindQuery(&jsonReq); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
+		return
+	}
+
+	checkCampaignArg := repository.CampaignIDParams{
+		ID: uriReq.CampaignID,
+	}
+
+	_, err := service.CampaignRepository.GetOneByID(ctx, checkCampaignArg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err := fmt.Errorf("campaign with id %d not found", uriReq.CampaignID)
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaign data. Please try again later."})
+		return
+	}
+
+	getWithdrawArg := repository.GetManyWithdrawByCampaignParams{
+		CampaignID: uriReq.CampaignID,
+		Limit:      jsonReq.Limit,
+		Offset:     (jsonReq.Page - 1) * jsonReq.Limit,
+	}
+
+	campaigns, err := service.WithdrawRepository.GetManyByCampaign(ctx, getWithdrawArg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaigns data. Please try again later."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns})
 }

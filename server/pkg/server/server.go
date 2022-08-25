@@ -78,6 +78,7 @@ func (server *Server) InitRouter() {
 	routerGroup.GET("/donation/:campaign_id", donationService.GetCampaignDonation)
 
 	fundraiserGroup.POST("/withdraw", withdrawService.CreateWithdraw)
+	routerGroup.GET("/withdraw/:campaign_id", withdrawService.GetCampaignWithdraw)
 
 	router.Run(server.Config.ServerAddress)
 }
