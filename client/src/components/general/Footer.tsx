@@ -11,10 +11,10 @@ const Footer = () => {
         <p className='mt-5 leading-loose text-sm'><span className='text-gray-700 font-semibold'>We</span><span className='text-orange-400 font-medium'>Care</span> is a fundraising platform that allows everyone <br className='md:block hidden' /> to create a campaign that can contribute to any kind of kindness act.</p>
       </div>
       <div className='flex items-center justify-center text-sm mt-12 gap-10'>
-        <Link to='/'>Home</Link>
-        <Link to='/campaigns'>Campaigns</Link>
-        <Link to='/login'>Sign In</Link>
-        <Link to='/register'>Sign Up</Link>
+        <Link to='/' className='outline-0'>Home</Link>
+        <Link to='/campaigns' className='outline-0'>Campaigns</Link>
+        <Link to='/login' className='outline-0'>Sign In</Link>
+        <Link to='/register' className='outline-0'>Sign Up</Link>
       </div>
     </div>
   )
