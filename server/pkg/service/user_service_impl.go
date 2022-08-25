@@ -138,7 +138,15 @@ func (service *UserServiceImpl) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("donation_app_rf_token", refreshToken, 24*60*60, "/", "localhost", false, true)
+	http.SetCookie(ctx.Writer, &http.Cookie{
+		Name:     "donation_app_rf_token",
+		Value:    refreshToken,
+		MaxAge:   24 * 60 * 60,
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+		HttpOnly: true,
+	})
 
 	ctx.JSON(http.StatusOK, gin.H{"access_token": accessToken, "user": newUserResponse(user)})
 }
@@ -198,6 +206,15 @@ func (service *UserServiceImpl) Logout(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("donation_app_rf_token", "", -24*60*60, "/", "localhost", false, true)
+	http.SetCookie(ctx.Writer, &http.Cookie{
+		Name:     "donation_app_rf_token",
+		Value:    "",
+		MaxAge:   -24 * 60 * 60,
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+		HttpOnly: true,
+	})
+
 	ctx.JSON(http.StatusOK, gin.H{"message": "Logout success."})
 }
