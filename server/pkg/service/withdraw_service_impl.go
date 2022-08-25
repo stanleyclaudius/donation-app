@@ -90,7 +90,7 @@ type GetCampaignWithdrawURI struct {
 	CampaignID int64 `uri:"campaign_id" binding:"required"`
 }
 
-type GetCampaignWithdrawRequest struct {
+type GetCampaignWithdrawQueryString struct {
 	Page  int64 `json:"page"`
 	Limit int64 `json:"limit"`
 }
@@ -102,8 +102,8 @@ func (service *WithdrawServiceImpl) GetCampaignWithdraw(ctx *gin.Context) {
 		return
 	}
 
-	var jsonReq GetCampaignWithdrawRequest
-	if err := ctx.ShouldBindQuery(&jsonReq); err != nil {
+	var queryReq GetCampaignWithdrawQueryString
+	if err := ctx.ShouldBindQuery(&queryReq); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
 		return
 	}
@@ -126,8 +126,8 @@ func (service *WithdrawServiceImpl) GetCampaignWithdraw(ctx *gin.Context) {
 
 	getWithdrawArg := repository.GetManyWithdrawByCampaignParams{
 		CampaignID: uriReq.CampaignID,
-		Limit:      jsonReq.Limit,
-		Offset:     (jsonReq.Page - 1) * jsonReq.Limit,
+		Limit:      queryReq.Limit,
+		Offset:     (queryReq.Page - 1) * queryReq.Limit,
 	}
 
 	campaigns, err := service.WithdrawRepository.GetManyByCampaign(ctx, getWithdrawArg)

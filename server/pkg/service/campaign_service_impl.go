@@ -100,13 +100,13 @@ func (service *CampaignServiceImpl) GetCampaign(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign})
 }
 
-type GetCampaignsRequest struct {
+type GetCampaignsQueryString struct {
 	Page  int64 `form:"page"`
 	Limit int64 `form:"limit"`
 }
 
 func (service *CampaignServiceImpl) GetCampaigns(ctx *gin.Context) {
-	var req GetCampaignsRequest
+	var req GetCampaignsQueryString
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
 		return
@@ -129,7 +129,7 @@ func (service *CampaignServiceImpl) GetCampaigns(ctx *gin.Context) {
 func (service *CampaignServiceImpl) GetFundraiserCampaigns(ctx *gin.Context) {
 	fundraiserID := ctx.MustGet("fundraiser_id").(int64)
 
-	var req GetCampaignsRequest
+	var req GetCampaignsQueryString
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
 		return
@@ -174,12 +174,12 @@ func (service *CampaignServiceImpl) DeleteCampaign(ctx *gin.Context) {
 		return
 	}
 
-	deleteArg := repository.DeleteCampaignParams{
+	deleteCampaignArg := repository.DeleteCampaignParams{
 		ID:           req.ID,
 		FundraiserID: fundraiserID,
 	}
 
-	err = service.CampaignRepository.Delete(ctx, deleteArg)
+	err = service.CampaignRepository.Delete(ctx, deleteCampaignArg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -226,7 +226,7 @@ func (service *CampaignServiceImpl) UpdateCampaign(ctx *gin.Context) {
 		return
 	}
 
-	updateArg := repository.UpdateCampaignParams{
+	updateCampaignArg := repository.UpdateCampaignParams{
 		ID:           uriReq.ID,
 		TypeID:       jsonReq.TypeID,
 		Title:        jsonReq.Title,
@@ -236,7 +236,7 @@ func (service *CampaignServiceImpl) UpdateCampaign(ctx *gin.Context) {
 		Slug:         strings.Replace(strings.ToLower(jsonReq.Title), " ", "-", -1),
 	}
 
-	campaign, err := service.CampaignRepository.Update(ctx, updateArg)
+	campaign, err := service.CampaignRepository.Update(ctx, updateCampaignArg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {

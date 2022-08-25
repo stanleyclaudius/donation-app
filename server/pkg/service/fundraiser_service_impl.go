@@ -76,13 +76,13 @@ func (service *FundraiserServiceImpl) CreateFundraiser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"fundraiser": fundraiser})
 }
 
-type GetAllFundraisersRequest struct {
+type GetAllFundraisersQueryString struct {
 	Page  int64 `form:"page"`
 	Limit int64 `fomr:"limit"`
 }
 
 func (service *FundraiserServiceImpl) GetAllFundraisers(ctx *gin.Context) {
-	var req GetAllTypesRequest
+	var req GetAllFundraisersQueryString
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
 		return

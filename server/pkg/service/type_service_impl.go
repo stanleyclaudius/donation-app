@@ -47,13 +47,13 @@ func (service *TypeServiceImpl) CreateType(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"type": campaignType})
 }
 
-type GetAllTypesRequest struct {
+type GetAllTypesQueryString struct {
 	Page  int64 `form:"page"`
 	Limit int64 `form:"limit"`
 }
 
 func (service *TypeServiceImpl) GetAllTypes(ctx *gin.Context) {
-	var req GetAllTypesRequest
+	var req GetAllTypesQueryString
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
 		return
@@ -94,11 +94,11 @@ func (service *TypeServiceImpl) UpdateType(ctx *gin.Context) {
 		return
 	}
 
-	getDataArg := repository.TypeIDParams{
+	checkTypeArg := repository.TypeIDParams{
 		ID: uriReq.ID,
 	}
 
-	_, err := service.TypeRepository.GetOneByID(ctx, getDataArg)
+	_, err := service.TypeRepository.GetOneByID(ctx, checkTypeArg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err := fmt.Errorf("campaign type with id %d not found", uriReq.ID)
@@ -110,12 +110,12 @@ func (service *TypeServiceImpl) UpdateType(ctx *gin.Context) {
 		return
 	}
 
-	updateArg := repository.UpdateTypeParams{
+	updateTypeArg := repository.UpdateTypeParams{
 		ID:    uriReq.ID,
 		Title: jsonReq.Title,
 	}
 
-	campaignType, err := service.TypeRepository.Update(ctx, updateArg)
+	campaignType, err := service.TypeRepository.Update(ctx, updateTypeArg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update type. Please try again later."})
 		return

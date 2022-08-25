@@ -87,7 +87,7 @@ func (service *DonationServiceImpl) CreateDonation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"donation": donation})
 }
 
-type GetManyDonationRequest struct {
+type GetManyDonationQueryString struct {
 	Page  int64 `form:"page"`
 	Limit int64 `form:"limit"`
 }
@@ -95,7 +95,7 @@ type GetManyDonationRequest struct {
 func (service *DonationServiceImpl) GetDonationHistory(ctx *gin.Context) {
 	authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
 
-	var req GetManyDonationRequest
+	var req GetManyDonationQueryString
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
 		return
@@ -121,7 +121,7 @@ type GetCampaignDonationURI struct {
 }
 
 func (service *DonationServiceImpl) GetCampaignDonation(ctx *gin.Context) {
-	var queryReq GetManyDonationRequest
+	var queryReq GetManyDonationQueryString
 	if err := ctx.ShouldBindQuery(&queryReq); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide page and limit as query string."})
 		return
