@@ -34,7 +34,7 @@ const Login = () => {
               <label htmlFor='password' className='text-sm'>Password</label>
               <input type='password' id='password' name='password' value={userData.password} onChange={handleChange} className='w-full outline-0 h-12 rounded-md indent-2 border border-gray-300 text-sm mt-3' />
             </div>
-            <button className='float-right bg-orange-400 hover:bg-orange-500 transition-[background] text-white rounded-md w-20 h-10 text-sm'>Sign In</button>
+            <button type='submit' className='float-right bg-orange-400 hover:bg-orange-500 transition-[background] text-white rounded-md w-20 h-10 text-sm'>Sign In</button>
             <div className='clear-both' />
           </form>
           <p className='text-center text-xs mt-5'>Don&apos;t have an account yet? Click <Link to='/register' className='underline text-blue-500'>here</Link> to create new account</p>

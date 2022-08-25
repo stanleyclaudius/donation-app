@@ -44,7 +44,7 @@ const Register = () => {
               <label htmlFor='passwordConfirmation' className='text-sm'>Password Confirmation</label>
               <input type='password' id='passwordConfirmation' name='passwordConfirmation' value={userData.passwordConfirmation} onChange={handleChange} className='w-full outline-0 h-12 rounded-md indent-2 border border-gray-300 text-sm mt-3' />
             </div>
-            <button className='float-right bg-orange-400 hover:bg-orange-500 transition-[background] text-white rounded-md w-20 h-10 text-sm'>Sign Up</button>
+            <button type='submit' className='float-right bg-orange-400 hover:bg-orange-500 transition-[background] text-white rounded-md w-20 h-10 text-sm'>Sign Up</button>
             <div className='clear-both' />
           </form>
           <p className='text-center text-xs mt-5'>Already have an account? Click <Link to='/login' className='underline text-blue-500'>here</Link> to login</p>
