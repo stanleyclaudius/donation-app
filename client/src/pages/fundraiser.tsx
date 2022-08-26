@@ -32,7 +32,7 @@ const Fundraiser = () => {
                 <td>2022-03-10</td>
                 <td>
                   <button onClick={() => setOpenDetailModal(true)} className='bg-blue-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-blue-600 transition-[background]'>detail</button>
-                  <button className='bg-green-600 text-white text-sm rounded-md p-2 mr-3 hover:bg-green-700 transition-[background]'>accept</button>
+                  <button className='bg-green-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-green-600 transition-[background]'>accept</button>
                   <button className='bg-red-500 text-white text-sm rounded-md p-2 hover:bg-red-600 transition-[background]'>reject</button>
                 </td>
               </tr>
