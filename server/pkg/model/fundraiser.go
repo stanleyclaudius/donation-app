@@ -3,11 +3,11 @@ package model
 import "time"
 
 type Fundraiser struct {
-	ID          int64
-	UserID      int64
-	Phone       string
-	Address     string
-	Description string
-	IsActive    bool
-	CreatedAt   time.Time
+	ID          int64     `json:"id"`
+	UserID      int64     `json:"user_id"`
+	Phone       string    `json:"phone"`
+	Address     string    `json:"address"`
+	Description string    `json:"description"`
+	IsActive    bool      `json:"is_active"`
+	CreatedAt   time.Time `json:"created_at"`
 }

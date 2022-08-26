@@ -59,14 +59,19 @@ type GetManyTypeParams struct {
 	Offset int64 `json:"offset"`
 }
 
-func (repository *TypeRepositoryImpl) GetMany(ctx context.Context, arg GetManyTypeParams) ([]model.Type, error) {
-	sqlStatement := "SELECT * FROM types"
+type TypeCount struct {
+	TypeCount int64 `json:"type_count"`
+}
+
+func (repository *TypeRepositoryImpl) GetMany(ctx context.Context, arg GetManyTypeParams) ([]model.Type, int64, error) {
+	sqlStatement := "SELECT * FROM types ORDER BY id DESC"
 	if arg.Limit < 1 {
 		sqlStatement += " LIMIT (SELECT COUNT(id) FROM types) OFFSET 0"
 	} else {
 		sqlStatement += " LIMIT $1 OFFSET $2"
 	}
 
+	var typeCount TypeCount
 	var rows *sql.Rows
 	var err error
 
@@ -77,7 +82,7 @@ func (repository *TypeRepositoryImpl) GetMany(ctx context.Context, arg GetManyTy
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer rows.Close()
@@ -92,21 +97,32 @@ func (repository *TypeRepositoryImpl) GetMany(ctx context.Context, arg GetManyTy
 			&i.Title,
 			&i.CreatedAt,
 		); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		items = append(items, i)
 	}
 
+	sqlStatement = "SELECT COUNT(1) AS type_count FROM types"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement)
+
+	err = row.Scan(
+		&typeCount.TypeCount,
+	)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
 	if err := rows.Close(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return items, nil
+	return items, typeCount.TypeCount, nil
 }
 
 type UpdateTypeParams struct {

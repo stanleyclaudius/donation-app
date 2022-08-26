@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { AiOutlineClose } from 'react-icons/ai'
-import { FormSubmit, InputChange } from '../../utils/Interface.'
+import { FormSubmit, InputChange } from '../../utils/Interface'
 
 interface IProps {
   openModal: boolean

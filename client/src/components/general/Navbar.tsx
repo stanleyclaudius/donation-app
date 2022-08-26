@@ -57,7 +57,10 @@ const Navbar = () => {
           </div>
           <NavbarLink path='/' text='Home' />
           <NavbarLink path='/campaigns' text='Campaigns' />
-          <NavbarLink path='/login' text='Login' />
+          {
+            !auth.access_token &&
+            <NavbarLink path='/login' text='Login' />
+          }
           {
             auth.access_token &&
             <>
@@ -69,9 +72,17 @@ const Navbar = () => {
                 <div className={`absolute bg-white rounded-md shadow-xl border border-gray-200 w-40 top-full right-0 mt-3 ${openDropdown ? 'scale-y-1' : 'scale-y-0'} origin-top transition-all`}>
                   <Link to='/history' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>History</Link>
                   <Link to='/profile' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Edit Profile</Link>
-                  <Link to='/campaign' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Own Campaigns</Link>
-                  <Link to='/fundraiser' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Fundraisers</Link>
-                  <Link to='/type' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Types</Link>
+                  {
+                    auth.user?.role === 'fundraiser' &&
+                    <Link to='/campaign' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Own Campaigns</Link>
+                  }
+                  {
+                    auth.user?.role === 'admin' &&
+                    <>
+                      <Link to='/fundraiser' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Fundraisers</Link>
+                      <Link to='/type' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Types</Link>
+                    </>
+                  }
                   <Link onClick={() => dispatch(logout(auth.access_token!))} to='/' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Logout</Link>
                 </div>
               </div>

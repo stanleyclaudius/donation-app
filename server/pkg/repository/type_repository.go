@@ -8,7 +8,7 @@ import (
 type TypeRepository interface {
 	Save(ctx context.Context, arg SaveTypeParams) (model.Type, error)
 	GetOneByID(ctx context.Context, arg TypeIDParams) (model.Type, error)
-	GetMany(ctx context.Context, arg GetManyTypeParams) ([]model.Type, error)
+	GetMany(ctx context.Context, arg GetManyTypeParams) ([]model.Type, int64, error)
 	Update(ctx context.Context, arg UpdateTypeParams) (model.Type, error)
 	Delete(ctx context.Context, arg TypeIDParams) error
 }

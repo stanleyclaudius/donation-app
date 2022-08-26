@@ -64,13 +64,24 @@ func (service *TypeServiceImpl) GetAllTypes(ctx *gin.Context) {
 		Offset: (req.Page - 1) * req.Limit,
 	}
 
-	types, err := service.TypeRepository.GetMany(ctx, arg)
+	types, typeCount, err := service.TypeRepository.GetMany(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaign types. Please try again later."})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"types": types})
+	totalPage := 0
+	if arg.Limit != 0 {
+		if typeCount%arg.Limit == 0 {
+			totalPage = int(typeCount / arg.Limit)
+		} else {
+			totalPage = int(typeCount/arg.Limit) + 1
+		}
+	} else {
+		totalPage = 1
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"types": types, "total_page": totalPage})
 }
 
 type UpdateTypeRequest struct {
@@ -149,7 +160,7 @@ func (service *TypeServiceImpl) DeleteType(ctx *gin.Context) {
 
 	err = service.TypeRepository.Delete(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete campaign type. Please try again later."})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Several campaigns still used this type. Failed to delete campaign type."})
 		return
 	}
 

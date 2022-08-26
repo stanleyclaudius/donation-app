@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { IAlertState } from './../../utils/Interface.'
+import { IAlertState } from './../../utils/Interface'
 
 const initialState: IAlertState = {}
 
