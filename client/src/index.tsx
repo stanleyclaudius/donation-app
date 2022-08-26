@@ -1,4 +1,4 @@
-import React from 'react'
+import ReduxProvider from './redux/store'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
@@ -8,7 +8,7 @@ const root = ReactDOM.createRoot(
 )
 
 root.render(
-  <React.StrictMode>
+  <ReduxProvider>
     <App />
-  </React.StrictMode>
+  </ReduxProvider>
 )
