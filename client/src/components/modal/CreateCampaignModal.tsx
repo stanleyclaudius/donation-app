@@ -1,20 +1,30 @@
 import { useState, useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineClose } from 'react-icons/ai'
-import { FormSubmit, InputChange } from '../../utils/Interface'
+import { getDataAPI } from '../../utils/fetchData'
+import { FormSubmit, ICampaign, InputChange, IType } from '../../utils/Interface'
+import { AppDispatch, RootState } from './../../redux/store'
+import Loader from '../general/Loader'
+import { createCampaign, updateCampaign } from '../../redux/slice/fundraiserCampaignSlice'
 
 interface IProps {
   openModal: boolean
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>
+  selectedItem: ICampaign
 }
 
-const CreateCampaignModal = ({ openModal, setOpenModal }: IProps) => {
+const CreateCampaignModal = ({ openModal, setOpenModal, selectedItem }: IProps) => {
+  const dispatch = useDispatch<AppDispatch>()
+  const { alert, auth } = useSelector((state: RootState) => state)
+
+  const [campaignTypes, setCampaignTypes] = useState<IType[]>([])
   const [campaignData, setCampaignData] = useState({
     title: '',
-    type: '',
+    type: 0,
     target_amount: 0,
     description: ''
   })
-  const [campaignImage, setCampaignImage] = useState<File>()
+  const [campaignImage, setCampaignImage] = useState<File | string>()
 
   const modalRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
@@ -29,9 +39,92 @@ const CreateCampaignModal = ({ openModal, setOpenModal }: IProps) => {
     setCampaignImage(file)
   }
 
-  const handleSubmit = (e: FormSubmit) => {
+  const handleSubmit = async(e: FormSubmit) => {
     e.preventDefault()
+    if (!campaignData.title) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide campaign title.'
+        }
+      })
+    }
+
+    if (!campaignData.type) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide campaign type.'
+        }
+      })
+    }
+
+    if (!campaignData.target_amount) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide campaign target amount.'
+        }
+      })
+    }
+
+    if (!campaignData.description) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide campaign description.'
+        }
+      })
+    }
+
+    if (!campaignImage) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide campaign image.'
+        }
+      })
+    }
+
+    if (selectedItem) {
+      await dispatch(updateCampaign({ ...campaignData, image: campaignImage, access_token: auth.access_token!, id: selectedItem.id }))
+    } else {
+      await dispatch(createCampaign({ ...campaignData, image: campaignImage as File, access_token: auth.access_token! }))
+    }
+
+    setOpenModal(false)
   }
+
+  useEffect(() => {
+    (async() => {
+      const res = await getDataAPI('type')
+      setCampaignTypes(res.data.types)
+    })()
+  }, [])
+
+  useEffect(() => {
+    if (selectedItem) {
+      setCampaignData({
+        title: selectedItem.title,
+        type: selectedItem.type_id,
+        target_amount: selectedItem.target_amount,
+        description: selectedItem.description
+      })
+
+      setCampaignImage(selectedItem.image)
+    }
+
+    return () => {
+      setCampaignData({
+        title: '',
+        type: 0,
+        target_amount: 0,
+        description: ''
+      })
+
+      setCampaignImage(undefined)
+    }
+  }, [selectedItem])
 
   useEffect(() => {
     const checkIfClickedOutside = (e: MouseEvent) => {
@@ -58,8 +151,12 @@ const CreateCampaignModal = ({ openModal, setOpenModal }: IProps) => {
           </div>
           <div className='mb-6'>
             <label htmlFor='type' className='text-sm'>Type</label>
-            <select id='title' name='title' value={campaignData.type} onChange={handleChange} className='w-full outline-0 h-12 rounded-md indent-2 border border-gray-300 text-sm mt-3'>
-              <option value='tset'>Test</option>
+            <select id='type' name='type' value={campaignData.type} onChange={handleChange} className='w-full outline-0 h-12 rounded-md indent-2 border border-gray-300 text-sm mt-3'>
+              {
+                campaignTypes.map(item => (
+                  <option value={item.id}>{item.title}</option>
+                ))
+              }
             </select>
           </div>
           <div className='mb-6'>
@@ -76,13 +173,26 @@ const CreateCampaignModal = ({ openModal, setOpenModal }: IProps) => {
               <div className='flex-1 outline outline-3 outline-gray-300 h-24'>
                 {
                   campaignImage &&
-                  <img src={`${URL.createObjectURL(campaignImage)}`} alt={campaignData.title} className='w-full h-full' />
+                  <img
+                    src={
+                      typeof campaignImage === 'string'
+                      ? campaignImage
+                      : URL.createObjectURL(campaignImage)
+                    }
+                    alt={campaignData.title} className='w-full h-full'
+                  />
                 }
               </div>
               <input onChange={handleChangeImage} type='file' className='flex-1 outline-0 rounded-md p-2 border border-gray-300 text-sm' />
             </div>
           </div>
-          <button type='submit' className='text-white text-sm bg-orange-500 hover:bg-orange-600 transition-[background] rounded-md w-24 float-right h-10'>Submit</button>
+          <button type='submit' disabled={alert.loading ? true : false} className={`text-white text-sm ${alert.loading ? 'bg-gray-200 hover:bg-gray-200 cursor-default' : 'bg-orange-500 hover:bg-orange-600 cursor-pointer'} transition-[background] rounded-md w-24 float-right h-10`}>
+            {
+              alert.loading
+              ? <Loader />
+              : 'Submit'
+            }
+          </button>
           <div className='clear-both' />
         </form>
       </div>

@@ -4,6 +4,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import alertSlice from './slice/alertSlice'
 import authSlice from './slice/authSlice'
 import typeSlice from './slice/typeSlice'
+import fundraiserCampaignSlice from './slice/fundraiserCampaignSlice'
 
 interface IProps {
   children: ReactNode
@@ -13,7 +14,8 @@ const store = configureStore({
   reducer: {
     alert: alertSlice,
     auth: authSlice,
-    campaign_type: typeSlice
+    campaign_type: typeSlice,
+    fundraiser_campaign: fundraiserCampaignSlice
   }
 })
 

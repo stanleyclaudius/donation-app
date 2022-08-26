@@ -13,14 +13,17 @@ import (
 
 type CampaignServiceImpl struct {
 	CampaignRepository repository.CampaignRepository
+	TypeRepository     repository.TypeRepository
 	DB                 *sql.DB
 }
 
 func NewCampaignService(db *sql.DB) CampaignService {
 	campaignRepository := repository.NewCampaignRepository(db)
+	typeRepository := repository.NewTypeRepository(db)
 
 	return &CampaignServiceImpl{
 		CampaignRepository: campaignRepository,
+		TypeRepository:     typeRepository,
 		DB:                 db,
 	}
 }
@@ -42,7 +45,32 @@ func (service *CampaignServiceImpl) CreateCampaign(ctx *gin.Context) {
 		return
 	}
 
-	arg := repository.SaveCampaignParams{
+	checkTypeArg := repository.TypeIDParams{
+		ID: req.TypeID,
+	}
+
+	campaignType, err := service.TypeRepository.GetOneByID(ctx, checkTypeArg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Campaign type not found."})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaign type data. Please try again later."})
+		return
+	}
+
+	checkCampaignArg := repository.CampaignSlugParams{
+		Slug: strings.Replace(strings.ToLower(req.Title), " ", "-", -1),
+	}
+
+	_, err = service.CampaignRepository.GetOneBySlug(ctx, checkCampaignArg)
+	if err == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campaign title has been used before."})
+		return
+	}
+
+	saveCampaignArg := repository.SaveCampaignParams{
 		FundraiserID: fundraiserID,
 		TypeID:       req.TypeID,
 		Title:        req.Title,
@@ -52,7 +80,7 @@ func (service *CampaignServiceImpl) CreateCampaign(ctx *gin.Context) {
 		Slug:         strings.Replace(strings.ToLower(req.Title), " ", "-", -1),
 	}
 
-	campaign, err := service.CampaignRepository.Save(ctx, arg)
+	campaign, err := service.CampaignRepository.Save(ctx, saveCampaignArg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -67,7 +95,7 @@ func (service *CampaignServiceImpl) CreateCampaign(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign})
+	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign, "type": campaignType.Title, "type_id": campaignType.ID})
 }
 
 type CampaignIDURI struct {
@@ -141,12 +169,23 @@ func (service *CampaignServiceImpl) GetFundraiserCampaigns(ctx *gin.Context) {
 		Offset:       (req.Page - 1) * req.Limit,
 	}
 
-	campaigns, err := service.CampaignRepository.GetManyByFundraiser(ctx, arg)
+	campaigns, campaignCount, err := service.CampaignRepository.GetManyByFundraiser(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve fundraiser campaigns data. Please try again later."})
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns})
+	totalPage := 0
+	if arg.Limit != 0 {
+		if campaignCount%arg.Limit == 0 {
+			totalPage = int(campaignCount / arg.Limit)
+		} else {
+			totalPage = int(campaignCount/arg.Limit) + 1
+		}
+	} else {
+		totalPage = 1
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns, "total_page": totalPage})
 }
 
 func (service *CampaignServiceImpl) DeleteCampaign(ctx *gin.Context) {
@@ -210,12 +249,27 @@ func (service *CampaignServiceImpl) UpdateCampaign(ctx *gin.Context) {
 		return
 	}
 
+	checkTypeArg := repository.TypeIDParams{
+		ID: jsonReq.TypeID,
+	}
+
+	campaignType, err := service.TypeRepository.GetOneByID(ctx, checkTypeArg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Campaign type not found."})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaign type data. Please try again later."})
+		return
+	}
+
 	checkCampaignArg := repository.GetOneCampaignByFundraiserParams{
 		ID:           uriReq.ID,
 		FundraiserID: fundraiserID,
 	}
 
-	_, err := service.CampaignRepository.GetOneByFundraiserID(ctx, checkCampaignArg)
+	_, err = service.CampaignRepository.GetOneByFundraiserID(ctx, checkCampaignArg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Campaign is not belong to current authenticated fundraiser."})
@@ -250,5 +304,5 @@ func (service *CampaignServiceImpl) UpdateCampaign(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign})
+	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign, "type": campaignType.Title, "type_id": campaignType.ID})
 }

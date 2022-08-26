@@ -71,8 +71,8 @@ const CampaignType = () => {
                         <td>{item.title}</td>
                         <td>{dateFormatter(item.created_at)}</td>
                         <td>
-                          <button onClick={() => handleClickUpdate(item)} className='bg-yellow-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-yellow-600 transition-[background]'>update</button>
-                          <button onClick={() => handleClickDelete(item)} className='bg-red-500 text-white text-sm rounded-md p-2 hover:bg-red-600 transition-[background]'>delete</button>
+                          <button onClick={() => handleClickUpdate(item)} className='bg-yellow-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-yellow-600 transition-[background]'>Update</button>
+                          <button onClick={() => handleClickDelete(item)} className='bg-red-500 text-white text-sm rounded-md p-2 hover:bg-red-600 transition-[background]'>Delete</button>
                         </td>
                       </tr>
                     ))

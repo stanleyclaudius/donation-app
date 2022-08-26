@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"donation_app/pkg/model"
+	"time"
 )
 
 type CampaignRepositoryImpl struct {
@@ -14,6 +15,24 @@ func NewCampaignRepository(db *sql.DB) CampaignRepository {
 	return &CampaignRepositoryImpl{
 		DB: db,
 	}
+}
+
+type JoinedCampaignData struct {
+	ID                    int64     `json:"id"`
+	Type                  string    `json:"type"`
+	TypeID                int64     `json:"type_id"`
+	FundraiserName        string    `json:"fundraiser_name"`
+	FundraiserPhone       string    `json:"fundraiser_phone"`
+	FundraiserAddress     string    `json:"fundraiser_address"`
+	FundraiserDescription string    `json:"fundraiser_description"`
+	Title                 string    `json:"title"`
+	Description           string    `json:"description"`
+	Image                 string    `json:"image"`
+	CollectedAmount       float64   `json:"collected_amount"`
+	TargetAmount          float64   `json:"target_amount"`
+	WithdrawnAmount       float64   `json:"withdrawn_amount"`
+	Slug                  string    `json:"slug"`
+	CreatedAt             time.Time `json:"created_at"`
 }
 
 type SaveCampaignParams struct {
@@ -58,6 +77,33 @@ func (repository *CampaignRepositoryImpl) GetOneByID(ctx context.Context, arg Ca
 
 	sqlStatement := "SELECT * FROM campaigns WHERE id = $1"
 	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.ID)
+
+	err := row.Scan(
+		&campaign.ID,
+		&campaign.FundraiserID,
+		&campaign.TypeID,
+		&campaign.Title,
+		&campaign.Description,
+		&campaign.Image,
+		&campaign.CollectedAmount,
+		&campaign.TargetAmount,
+		&campaign.WithdrawnAmount,
+		&campaign.Slug,
+		&campaign.CreatedAt,
+	)
+
+	return campaign, err
+}
+
+type CampaignSlugParams struct {
+	Slug string `json:"slug"`
+}
+
+func (repository *CampaignRepositoryImpl) GetOneBySlug(ctx context.Context, arg CampaignSlugParams) (model.Campaign, error) {
+	var campaign model.Campaign
+
+	sqlStatement := "SELECT * FROM campaigns WHERE slug = $1"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.Slug)
 
 	err := row.Scan(
 		&campaign.ID,
@@ -173,14 +219,19 @@ type GetManyCampaignByFundraiserParams struct {
 	Offset       int64 `json:"offset"`
 }
 
-func (repository *CampaignRepositoryImpl) GetManyByFundraiser(ctx context.Context, arg GetManyCampaignByFundraiserParams) ([]model.Campaign, error) {
-	sqlStatement := "SELECT * FROM campaigns WHERE fundraiser_id = $1"
+type CampaignCount struct {
+	CampaignCount int64 `json:"campaign_count"`
+}
+
+func (repository *CampaignRepositoryImpl) GetManyByFundraiser(ctx context.Context, arg GetManyCampaignByFundraiserParams) ([]JoinedCampaignData, int64, error) {
+	sqlStatement := "SELECT C.id, T.title as type, T.id as type_id, U.name AS fundraiser_name, F.phone AS fundraiser_phone, F.address AS fundraiser_address, F.description AS fundraiser_description, C.title, C.description, C.image, C.collected_amount, C.target_amount, C.withdrawn_amount, C.slug, C.created_at FROM campaigns C JOIN fundraisers F ON C.fundraiser_id = F.id JOIN types T ON c.type_id = T.id JOIN users U ON F.user_id = U.id WHERE fundraiser_id = $1 ORDER BY id DESC"
 	if arg.Limit < 1 {
 		sqlStatement += " LIMIT (SELECT COUNT(id) FROM campaigns WHERE fundraiser_id = $1) OFFSET 0"
 	} else {
 		sqlStatement += " LIMIT $2 OFFSET $3"
 	}
 
+	var campaignCount CampaignCount
 	var rows *sql.Rows
 	var err error
 
@@ -191,20 +242,24 @@ func (repository *CampaignRepositoryImpl) GetManyByFundraiser(ctx context.Contex
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer rows.Close()
 
-	items := []model.Campaign{}
+	items := []JoinedCampaignData{}
 
 	for rows.Next() {
-		var i model.Campaign
+		var i JoinedCampaignData
 
 		if err := rows.Scan(
 			&i.ID,
-			&i.FundraiserID,
+			&i.Type,
 			&i.TypeID,
+			&i.FundraiserName,
+			&i.FundraiserPhone,
+			&i.FundraiserAddress,
+			&i.FundraiserDescription,
 			&i.Title,
 			&i.Description,
 			&i.Image,
@@ -214,21 +269,28 @@ func (repository *CampaignRepositoryImpl) GetManyByFundraiser(ctx context.Contex
 			&i.Slug,
 			&i.CreatedAt,
 		); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		items = append(items, i)
 	}
 
+	sqlStatement = "SELECT COUNT(1) AS campaign_count FROM campaigns WHERE fundraiser_id = $1"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.FundraiserID)
+
+	err = row.Scan(
+		&campaignCount.CampaignCount,
+	)
+
 	if err := rows.Close(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return items, err
+	return items, campaignCount.CampaignCount, err
 }
 
 type DeleteCampaignParams struct {

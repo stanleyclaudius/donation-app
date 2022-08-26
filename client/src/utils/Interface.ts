@@ -51,3 +51,55 @@ export interface IDeleteTypeData {
 export interface IUpdateTypeData extends ICreateTypeData {
   id: number
 }
+
+export interface IFundraiserCampaignState {
+  data: ICampaign[]
+  total_page: number
+}
+
+export interface ICampaign {
+  id: number
+  type: string
+  type_id: number
+  fundraiser_name: string
+  fundraiser_phone: string
+  fundraiser_address: string
+  fundraiser_description: string
+  title: string
+  description: string
+  image: string
+  collected_amount: number
+  target_amount: number
+  withdrawn_amount: number
+  slug: string
+  created_at: string
+}
+
+export interface IGetFundraiserCampaignsData {
+  access_token: string
+  page: number
+}
+
+export interface ICreateCampaignData {
+  title: string
+  type: number
+  target_amount: number
+  description: string
+  image: File
+  access_token: string
+}
+
+export interface IDeleteCampaignData {
+  id: number
+  access_token: string
+}
+
+export interface IUpdateFundraiserCampaignData {
+  id: number
+  title: string
+  type: number
+  target_amount: number
+  description: string
+  image: File | string
+  access_token: string
+}
