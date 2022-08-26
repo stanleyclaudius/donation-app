@@ -36,12 +36,12 @@ const Campaigns = () => {
             <AiOutlineSearch className='text-lg text-gray-500 shrink-0' />
             <input type="text" className='w-full text-sm  h-14 outline-0' placeholder='Search campaign keyword ...' />
             <p className='text-2xl text-gray-200'>|</p>
-            <div className='relative'>
-              <div onClick={() => setOpenType(true)} className='flex items-center gap-3 text-gray-700 cursor-pointer'>
+            <div ref={typeRef} className='relative'>
+              <div onClick={() => setOpenType(!openType)} className='flex items-center gap-3 text-gray-700 cursor-pointer'>
                 <p className='text-sm capitalize'>{selectedType === '' ? 'type' : selectedType}</p>
                 <AiFillCaretDown />
               </div>
-              <div ref={typeRef} className={`absolute top-full mt-5 right-0 bg-white shadow-xl border boder-gray-300 text-sm rounded-md ${openType ? 'scale-y-1' : 'scale-y-0'} transition-[transform] origin-top`}>
+              <div className={`absolute top-full mt-5 right-0 bg-white shadow-xl border boder-gray-300 text-sm rounded-md ${openType ? 'scale-y-1' : 'scale-y-0'} transition-[transform] origin-top`}>
                 <p onClick={() => handleClickType('school')} className='cursor-pointer border-b border-gray-300 pl-3 py-3 pr-7 hover:bg-gray-100'>School</p>
                 <p onClick={() => handleClickType('children')} className='cursor-pointer pl-3 py-3 pr-7 hover:bg-gray-100'>Children</p>
               </div>
