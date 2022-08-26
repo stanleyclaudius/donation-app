@@ -145,13 +145,24 @@ func (service *CampaignServiceImpl) GetCampaigns(ctx *gin.Context) {
 		Offset: (req.Page - 1) * req.Limit,
 	}
 
-	campaigns, err := service.CampaignRepository.GetMany(ctx, arg)
+	campaigns, campaignCount, err := service.CampaignRepository.GetMany(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaigns data. Please try again later."})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns})
+	totalPage := 0
+	if arg.Limit != 0 {
+		if campaignCount%arg.Limit == 0 {
+			totalPage = int(campaignCount / arg.Limit)
+		} else {
+			totalPage = int(campaignCount/arg.Limit) + 1
+		}
+	} else {
+		totalPage = 1
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns, "total_page": totalPage})
 }
 
 func (service *CampaignServiceImpl) GetFundraiserCampaigns(ctx *gin.Context) {

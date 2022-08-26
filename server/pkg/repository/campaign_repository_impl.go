@@ -155,14 +155,19 @@ type GetManyCampaignParams struct {
 	Offset int64 `json:"offset"`
 }
 
-func (repository *CampaignRepositoryImpl) GetMany(ctx context.Context, arg GetManyCampaignParams) ([]model.Campaign, error) {
-	sqlStatement := "SELECT * FROM campaigns"
+type CampaignCount struct {
+	CampaignCount int64 `json:"campaign_count"`
+}
+
+func (repository *CampaignRepositoryImpl) GetMany(ctx context.Context, arg GetManyCampaignParams) ([]model.Campaign, int64, error) {
+	sqlStatement := "SELECT * FROM campaigns ORDER BY id DESC"
 	if arg.Limit < 1 {
 		sqlStatement += " LIMIT (SELECT COUNT(id) FROM campaigns) OFFSET 0"
 	} else {
 		sqlStatement += " LIMIT $1 OFFSET $2"
 	}
 
+	var campaignCount CampaignCount
 	var rows *sql.Rows
 	var err error
 
@@ -173,7 +178,7 @@ func (repository *CampaignRepositoryImpl) GetMany(ctx context.Context, arg GetMa
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer rows.Close()
@@ -196,31 +201,38 @@ func (repository *CampaignRepositoryImpl) GetMany(ctx context.Context, arg GetMa
 			&i.Slug,
 			&i.CreatedAt,
 		); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		items = append(items, i)
 	}
 
+	sqlStatement = "SELECT COUNT(1) AS campaign_count FROM campaigns"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement)
+
+	err = row.Scan(
+		&campaignCount.CampaignCount,
+	)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
 	if err := rows.Close(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return items, nil
+	return items, campaignCount.CampaignCount, nil
 }
 
 type GetManyCampaignByFundraiserParams struct {
 	FundraiserID int64 `json:"fundraiser_id"`
 	Limit        int64 `json:"limit"`
 	Offset       int64 `json:"offset"`
-}
-
-type CampaignCount struct {
-	CampaignCount int64 `json:"campaign_count"`
 }
 
 func (repository *CampaignRepositoryImpl) GetManyByFundraiser(ctx context.Context, arg GetManyCampaignByFundraiserParams) ([]JoinedCampaignData, int64, error) {

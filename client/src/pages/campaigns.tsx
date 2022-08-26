@@ -1,10 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { AiFillCaretDown, AiOutlineSearch } from 'react-icons/ai'
 import CampaignCard from '../components/general/CampaignCard'
+import Pagination from '../components/general/Pagination'
+import { getDataAPI } from '../utils/fetchData'
+import { ICampaign } from '../utils/Interface'
 import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
 
 const Campaigns = () => {
+  const [page, setPage] = useState(1)
+  const [totalPage, setTotalPage] = useState(0)
+  const [campaigns, setCampaigns] = useState<ICampaign[]>([])
   const [selectedType, setSelectedType] = useState('')
   const [openType, setOpenType] = useState(false)
 
@@ -14,6 +20,14 @@ const Campaigns = () => {
     setSelectedType(type)
     setOpenType(false)
   }
+
+  useEffect(() => {
+    (async() => {
+      const res = await getDataAPI(`campaign?page=${page}&limit=6`)
+      setCampaigns(res.data.campaigns)
+      setTotalPage(res.data.total_page)
+    })()
+  }, [page])
 
   useEffect(() => {
     const checkIfClickedOutside = (e: MouseEvent) => {
@@ -48,53 +62,31 @@ const Campaigns = () => {
             </div>
           </form>
         </div>
-        <div className='md:px-24 px-10 mt-20'>
-          <h1 className='font-medium text-center'>Displaying 25 Of 1.780.000 Campaigns</h1>
+        <div className='md:px-24 px-10 mt-24'>
           <div className='grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-14 mt-14'>
-            <CampaignCard
-              title='Title Goes Here'
-              description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse unde, molestias error natus ut harum! Perspiciatis, iusto. Aliquam, ad soluta.'
-              image=''
-              progress={20}
-              slug='title-goes-here'
-            />
-            <CampaignCard
-              title='Title Goes Here'
-              description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse unde, molestias error natus ut harum! Perspiciatis, iusto. Aliquam, ad soluta.'
-              image=''
-              progress={20}
-              slug='title-goes-here'
-            />
-            <CampaignCard
-              title='Title Goes Here'
-              description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse unde, molestias error natus ut harum! Perspiciatis, iusto. Aliquam, ad soluta.'
-              image=''
-              progress={20}
-              slug='title-goes-here'
-            />
-            <CampaignCard
-              title='Title Goes Here'
-              description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse unde, molestias error natus ut harum! Perspiciatis, iusto. Aliquam, ad soluta.'
-              image=''
-              progress={20}
-              slug='title-goes-here'
-            />
-            <CampaignCard
-              title='Title Goes Here'
-              description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse unde, molestias error natus ut harum! Perspiciatis, iusto. Aliquam, ad soluta.'
-              image=''
-              progress={20}
-              slug='title-goes-here'
-            />
-            <CampaignCard
-              title='Title Goes Here'
-              description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse unde, molestias error natus ut harum! Perspiciatis, iusto. Aliquam, ad soluta.'
-              image=''
-              progress={20}
-              slug='title-goes-here'
-            />
+            {
+              campaigns.map(item => (
+                <CampaignCard
+                  key={item.id}
+                  title={item.title}
+                  description={item.description}
+                  image={item.image}
+                  progress={item.collected_amount / item.target_amount * 100}
+                  slug={item.slug}
+                />
+              ))
+            }
           </div>
         </div>
+
+        {
+          totalPage > 1 &&
+          <Pagination
+            totalPage={totalPage}
+            currentPage={page}
+            setPage={setPage}
+          />
+        }
       </div>
       <Footer />
     </>
