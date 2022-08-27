@@ -10,6 +10,7 @@ import CreateTypeModal from './../components/modal/CreateTypeModal'
 import Navbar from './../components/general/Navbar'
 import DeleteModal from './../components/modal/DeleteModal'
 import Footer from './../components/general/Footer'
+import Head from './../utils/Head'
 
 const CampaignType = () => {
   const navigate = useNavigate()
@@ -53,6 +54,7 @@ const CampaignType = () => {
 
   return (
     <>
+      <Head title='Campaign Types' />
       <Navbar />
       <div className='mt-10 mb-20 md:px-24 px-10'>
         <h1 className='m-auto w-fit text-center text-2xl font-medium relative after:content-* after:w-2/3 after:h-[3px] after:bg-orange-300 after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2'>Campaign Types</h1>

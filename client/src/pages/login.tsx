@@ -8,6 +8,7 @@ import { login } from './../redux/slice/authSlice'
 import Loader from './../components/general/Loader'
 import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
+import Head from './../utils/Head'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -63,6 +64,7 @@ const Login = () => {
 
   return (
     <>
+      <Head title='Login' />
       <Navbar />
       <div className='mt-10 mb-20'>
         <h1 className='m-auto w-fit text-center text-2xl font-medium relative after:content-* after:w-2/3 after:h-[3px] after:bg-orange-300 after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2'>Sign In</h1>

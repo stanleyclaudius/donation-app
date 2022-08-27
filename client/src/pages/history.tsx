@@ -7,6 +7,7 @@ import HistoryCard from './../components/history/HistoryCard'
 import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
 import Pagination from './../components/general/Pagination'
+import Head from './../utils/Head'
 
 const History = () => {
   const navigate = useNavigate()
@@ -27,6 +28,7 @@ const History = () => {
 
   return (
     <>
+      <Head title='Donation History' />
       <Navbar />
       <div className='mb-20 mt-10'>
         <h1 className='m-auto w-fit text-center text-2xl font-medium relative after:content-* after:w-2/3 after:h-[3px] after:bg-orange-300 after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2'>Donation History</h1>

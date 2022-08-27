@@ -8,6 +8,7 @@ import { postDataAPI } from './../utils/fetchData'
 import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
 import Loader from './../components/general/Loader'
+import Head from './../utils/Head'
 
 const Register = () => {
   const navigate = useNavigate()
@@ -115,6 +116,7 @@ const Register = () => {
 
   return (
     <>
+      <Head title='Register' />
       <Navbar />
       <div className='mt-10 mb-20'>
         <h1 className='m-auto w-fit text-center text-2xl font-medium relative after:content-* after:w-2/3 after:h-[3px] after:bg-orange-300 after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2'>Sign Up</h1>

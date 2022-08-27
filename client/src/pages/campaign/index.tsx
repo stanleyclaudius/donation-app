@@ -12,6 +12,7 @@ import CreateCampaignModal from './../../components/modal/CreateCampaignModal'
 import DonationModal from './../../components/modal/DonationModal'
 import WithdrawModal from './../../components/modal/WithdrawModal'
 import Pagination from './../../components/general/Pagination'
+import Head from '../../utils/Head'
 
 const FundraiserCampaign = () => {
   const navigate = useNavigate()
@@ -45,7 +46,6 @@ const FundraiserCampaign = () => {
     setOpenDeleteModal(false)
   }
 
-
   const handleClickWithdraw = (item: ICampaign) => {
     setSelectedItem(item)
     setOpenWithdrawModal(true)
@@ -70,6 +70,7 @@ const FundraiserCampaign = () => {
 
   return (
     <>
+      <Head title='Fundraiser Campaigns' />
       <Navbar />
       <div className='mt-10 mb-20 md:px-24 px-10'>
         <h1 className='m-auto w-fit text-center text-2xl font-medium relative after:content-* after:w-2/3 after:h-[3px] after:bg-orange-300 after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2'>Campaigns</h1>

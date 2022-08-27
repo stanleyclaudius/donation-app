@@ -6,6 +6,7 @@ import CampaignCard from './../components/general/CampaignCard'
 import Pagination from './../components/general/Pagination'
 import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
+import Head from './../utils/Head'
 
 const Campaigns = () => {
   const [search, setSearch] = useState('')
@@ -54,6 +55,7 @@ const Campaigns = () => {
 
   return (
     <>
+      <Head title='Campaigns' />
       <Navbar />
       <div className='mb-20'>
         <div className='relative'>

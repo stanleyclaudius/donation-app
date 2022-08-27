@@ -10,6 +10,7 @@ import Footer from './../../components/general/Footer'
 import Navbar from './../../components/general/Navbar'
 import DonateModal from './../../components/modal/DonateModal'
 import DonationHistoryCard from './../../components/campaign_detail/DonationHistoryCard'
+import Head from './../../utils/Head'
 
 const CampaignDetail = () => {
   const { id } = useParams()
@@ -25,6 +26,7 @@ const CampaignDetail = () => {
 
   return (
     <>
+      <Head title={`${campaign_detail.data?.title}`} />
       <Navbar />
       <div className='mb-20'>
         {

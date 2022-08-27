@@ -9,6 +9,7 @@ import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
 import Pagination from './../components/general/Pagination'
 import FundraiserDetailModal from './../components/modal/FundraiserDetailModal'
+import Head from './../utils/Head'
 
 const Fundraiser = () => {
   const navigate = useNavigate()
@@ -36,6 +37,7 @@ const Fundraiser = () => {
 
   return (
     <>
+      <Head title='Fundraiser Verification' />
       <Navbar />
       <div className='mt-10 mb-20 md:px-24 px-10'>
         <h1 className='m-auto w-fit text-center text-2xl font-medium relative after:content-* after:w-2/3 after:h-[3px] after:bg-orange-300 after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2'>Fundraisers Verification</h1>
