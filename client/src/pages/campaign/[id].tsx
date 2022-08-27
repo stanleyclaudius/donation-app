@@ -74,6 +74,31 @@ const CampaignDetail = () => {
                   </div>
                   <h2 className='text-xl font-medium mt-16 mb-5'>Latest Withdrawn</h2>
                   <hr />
+                  <div className='mt-2'>
+                    {
+                      campaign_detail.withdraws.length > 0
+                      ? (
+                        <>
+                          {
+                            campaign_detail.withdraws.map((item, idx) => (
+                              <div key={idx}>
+                                <div className='my-5'>
+                                  <p>{currencyFormatter(item.amount)},00</p>
+                                  <p className='text-gray-500 text-sm mt-2'>{dateFormatter(item.created_at)}</p>
+                                </div>
+                                <hr />
+                              </div>
+                            ))
+                          }
+                        </>
+                      )
+                      : (
+                        <div className='bg-red-500 mt-7 text-white p-3 rounded-md text-center text-sm'>
+                          <p>There&apos;s no withdrawn yet for this campaign.</p>
+                        </div>
+                      )
+                    }
+                  </div>
                 </div>
                 <div className='flex-1'>
                   <div className='border border-gray-300 p-3'>

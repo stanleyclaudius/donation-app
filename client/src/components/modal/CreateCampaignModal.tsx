@@ -154,7 +154,7 @@ const CreateCampaignModal = ({ openModal, setOpenModal, selectedItem }: IProps) 
             <select id='type' name='type' value={campaignData.type} onChange={handleChange} className='w-full outline-0 h-12 rounded-md indent-2 border border-gray-300 text-sm mt-3'>
               {
                 campaignTypes.map(item => (
-                  <option value={item.id}>{item.title}</option>
+                  <option key={item.id} value={item.id}>{item.title}</option>
                 ))
               }
             </select>

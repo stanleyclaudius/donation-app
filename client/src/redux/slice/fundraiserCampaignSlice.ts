@@ -1,13 +1,49 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { deleteDataAPI, getDataAPI, patchDataAPI, postDataAPI } from '../../utils/fetchData'
 import { uploadImage } from '../../utils/imageHelper'
-import { ICreateCampaignData, IDeleteCampaignData, IFundraiserCampaignState, IGetFundraiserCampaignsData, IUpdateFundraiserCampaignData } from '../../utils/Interface'
+import { ICreateCampaignData, ICreateWithdrawData, IDeleteCampaignData, IFundraiserCampaignState, IGetFundraiserCampaignsData, IUpdateFundraiserCampaignData } from '../../utils/Interface'
 import { RootState } from '../store'
 
 const initialState: IFundraiserCampaignState = {
   data: [],
   total_page: 1
 }
+
+export const createWithdraw = createAsyncThunk(
+  'fundraiser_campaign/withdraw',
+  async(data: ICreateWithdrawData, thunkAPI) => {
+    const state = (thunkAPI.getState() as RootState).fundraiser_campaign
+
+    try {
+      thunkAPI.dispatch({
+        type: 'alert/alert',
+        payload: {
+          loading: true
+        }
+      })
+
+      const res = await postDataAPI('withdraw', { ...data, amount: Number(data.amount) }, data.access_token)
+      thunkAPI.dispatch({
+        type: 'alert/alert',
+        payload: {
+          success: res.data.message
+        }
+      })
+
+      return {
+        ...state,
+        data: state.data.map(item => item.id === data.campaign_id ? { ...item, withdrawn_amount: Number(item.withdrawn_amount) + Number(data.amount) } : item)
+      }
+    } catch (err: any) {
+      thunkAPI.dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: err.response.data.error
+        }
+      })
+    }
+  }
+)
 
 export const createCampaign = createAsyncThunk(
   'fundraiser_campaign/create',

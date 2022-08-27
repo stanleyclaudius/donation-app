@@ -17,7 +17,7 @@ const Pagination = ({ totalPage, currentPage, setPage }: IProps) => {
 
       {
         Array(totalPage).fill("").map((_, i) => (
-          <p onClick={() => setPage(i + 1)} className={`w-10 h-10 leading-10 text-center border-r border-gray-300 ${currentPage === i + 1 ? 'bg-orange-400 text-white' : undefined} hover:bg-orange-400 hover:text-white transition-all cursor-pointer`}>{i + 1}</p>
+          <p key={i} onClick={() => setPage(i + 1)} className={`w-10 h-10 leading-10 text-center border-r border-gray-300 ${currentPage === i + 1 ? 'bg-orange-400 text-white' : undefined} hover:bg-orange-400 hover:text-white transition-all cursor-pointer`}>{i + 1}</p>
         ))
       }
 

@@ -130,11 +130,11 @@ func (service *WithdrawServiceImpl) GetCampaignWithdraw(ctx *gin.Context) {
 		Offset:     (queryReq.Page - 1) * queryReq.Limit,
 	}
 
-	campaigns, err := service.WithdrawRepository.GetManyByCampaign(ctx, getWithdrawArg)
+	withdraws, err := service.WithdrawRepository.GetManyByCampaign(ctx, getWithdrawArg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve campaigns data. Please try again later."})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns})
+	ctx.JSON(http.StatusOK, gin.H{"withdraws": withdraws})
 }

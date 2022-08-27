@@ -44,7 +44,7 @@ type GetManyWithdrawByCampaignParams struct {
 }
 
 func (repository *WithdrawRepositoryImpl) GetManyByCampaign(ctx context.Context, arg GetManyWithdrawByCampaignParams) ([]model.Withdraw, error) {
-	sqlStatement := "SELECT * FROM withdrawn WHERE campaign_id = $1"
+	sqlStatement := "SELECT * FROM withdrawn WHERE campaign_id = $1 ORDER BY id DESC"
 
 	if arg.Limit < 1 {
 		sqlStatement += " LIMIT (SELECT COUNT(id) FROM withdrawn WHERE campaign_id = $1) OFFSET 0"

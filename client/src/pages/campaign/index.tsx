@@ -43,6 +43,17 @@ const FundraiserCampaign = () => {
     setOpenDeleteModal(false)
   }
 
+
+  const handleClickWithdraw = (item: ICampaign) => {
+    setSelectedItem(item)
+    setOpenWithdrawModal(true)
+  }
+
+  const handleClickDonation = (item: ICampaign) => {
+    setSelectedItem(item)
+    setOpenDonationModal(true)
+  }
+
   useEffect(() => {
     if (auth.access_token) {
       dispatch(getFundraiserCampaigns({ access_token: auth.access_token, page }))
@@ -85,8 +96,8 @@ const FundraiserCampaign = () => {
                         <td>{currencyFormatter(item.withdrawn_amount)},00</td>
                         <td>{dateFormatter(item.created_at)}</td>
                         <td>
-                          <button onClick={() => setOpenDonationModal(true)} className='bg-blue-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-blue-600 transition-[background]'>Donation</button>
-                          <button onClick={() => setOpenWithdrawModal(true)} className='bg-green-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-green-600 transition-[background]'>Withdraw</button>
+                          <button onClick={() => handleClickDonation(item)} className='bg-blue-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-blue-600 transition-[background]'>Donation</button>
+                          <button onClick={() => handleClickWithdraw(item)} className='bg-green-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-green-600 transition-[background]'>Withdraw</button>
                           <button onClick={() => handleClickUpdate(item)} className='bg-yellow-500 text-white text-sm rounded-md p-2 mr-3 hover:bg-yellow-600 transition-[background]'>Update</button>
                           <button onClick={() => handleClickDelete(item)} className='bg-red-500 text-white text-sm rounded-md p-2 hover:bg-red-600 transition-[background]'>Delete</button>
                         </td>
@@ -130,11 +141,13 @@ const FundraiserCampaign = () => {
       <WithdrawModal
         openModal={openWithdrawModal}
         setOpenModal={setOpenWithdrawModal}
+        selectedItem={selectedItem as ICampaign}
       />
 
       <DonationModal
         openModal={openDonationModal}
         setOpenModal={setOpenDonationModal}
+        selectedItem={selectedItem as ICampaign}
       />
     </>
   )

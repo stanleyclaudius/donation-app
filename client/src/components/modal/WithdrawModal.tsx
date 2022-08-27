@@ -1,13 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineClose } from 'react-icons/ai'
-import { FormSubmit, InputChange } from '../../utils/Interface'
+import { FormSubmit, ICampaign, InputChange } from '../../utils/Interface'
+import { AppDispatch, RootState } from '../../redux/store'
+import { createWithdraw } from '../../redux/slice/fundraiserCampaignSlice'
+import Loader from '../general/Loader'
 
 interface IProps {
   openModal: boolean
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>
+  selectedItem: ICampaign
 }
 
-const WithdrawModal = ({ openModal, setOpenModal }: IProps) => {
+const WithdrawModal = ({ openModal, setOpenModal, selectedItem }: IProps) => {
+  const dispatch = useDispatch<AppDispatch>()
+  const { auth, alert } = useSelector((state: RootState) => state)
+
   const [withdrawData, setWithdrawData] = useState({
     amount: 0
   })
@@ -21,6 +29,28 @@ const WithdrawModal = ({ openModal, setOpenModal }: IProps) => {
 
   const handleSubmit = (e: FormSubmit) => {
     e.preventDefault()
+  
+    if (!withdrawData.amount) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide withdraw amount.'
+        }
+      })
+    }
+
+    if (withdrawData.amount > selectedItem.collected_amount - selectedItem.withdrawn_amount) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Invalid withdraw amount.'
+        }
+      })
+    }
+
+    dispatch(createWithdraw({ access_token: auth.access_token!, ...withdrawData, campaign_id: selectedItem.id }))
+
+    setOpenModal(false)
   }
 
   useEffect(() => {
@@ -47,7 +77,13 @@ const WithdrawModal = ({ openModal, setOpenModal }: IProps) => {
               <label htmlFor='amount' className='text-sm'>Amount</label>
               <input type='number' name='amount' id='amount' value={withdrawData.amount} onChange={handleChange} className='w-full indent-2 text-sm outline-0 border border-gray-300 rounded-md h-10 mt-3' />
             </div>
-            <button type='submit' className='bg-orange-400 hover:bg-orange-500 transition-[background] text-white text-sm rounded-md w-24 h-10 float-right'>Withdraw</button>
+            <button type='submit' disabled={alert.loading ? true : false} className={`${alert.loading ? 'bg-gray-200 hover:bg-gray-200 cursor-default' : 'bg-orange-400 hover:bg-orange-500 cursor-pointer'} transition-[background] text-white text-sm rounded-md w-24 h-10 float-right`}>
+              {
+                alert.loading
+                ? <Loader />
+                : 'Withdraw'
+              }
+            </button>
             <div className='clear-both' />
           </form>
         </div>

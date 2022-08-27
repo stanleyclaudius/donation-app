@@ -5,7 +5,8 @@ import { RootState } from '../store'
 
 const initialState: ICampaignDetailState = {
   data: undefined,
-  donations: []
+  donations: [],
+  withdraws: []
 }
 
 export const createDonation = createAsyncThunk(
@@ -59,10 +60,12 @@ export const getCampaignDetail = createAsyncThunk(
     try {
       const campaignRes = await getDataAPI(`campaign/${slug}`)
       const donationRes = await getDataAPI(`donation/${campaignRes.data.campaign.id}?page=1&limit=5`)
+      const withdrawRes = await getDataAPI(`withdraw/${campaignRes.data.campaign.id}?page=1&limit=5`)
 
       return {
         data: campaignRes.data.campaign,
-        donations: donationRes.data.donations
+        donations: donationRes.data.donations,
+        withdraws: withdrawRes.data.withdraws
       }
     } catch (err: any) {
       thunkAPI.dispatch({

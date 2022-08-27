@@ -107,6 +107,7 @@ export interface IUpdateFundraiserCampaignData {
 export interface ICampaignDetailState {
   data: ICampaign | undefined,
   donations: IDonation[]
+  withdraws: IWithdraw[]
 }
 
 export interface IDonation {
@@ -125,4 +126,15 @@ export interface ICreateDonationData {
   words: string
   is_anonymous: boolean
   auth: IAuthState
+}
+
+export interface ICreateWithdrawData {
+  amount: number
+  campaign_id: number
+  access_token: string
+}
+
+export interface IWithdraw {
+  amount: number
+  created_at: string
 }
