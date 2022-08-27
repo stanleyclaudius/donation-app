@@ -74,7 +74,6 @@ const Navbar = () => {
                 </div>
                 <div className={`absolute bg-white rounded-md shadow-xl border border-gray-200 w-40 top-full right-0 mt-3 ${openDropdown ? 'scale-y-1' : 'scale-y-0'} origin-top transition-all`}>
                   <Link to='/history' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>History</Link>
-                  <Link to='/profile' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Edit Profile</Link>
                   {
                     auth.user?.role === 'fundraiser' &&
                     <Link to='/campaign' className='p-3 block border-b border-gray-200 hover:bg-gray-100'>Own Campaigns</Link>

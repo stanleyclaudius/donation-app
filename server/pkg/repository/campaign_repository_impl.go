@@ -155,8 +155,10 @@ func (repository *CampaignRepositoryImpl) GetOneByFundraiserID(ctx context.Conte
 }
 
 type GetManyCampaignParams struct {
-	Limit  int64 `json:"limit"`
-	Offset int64 `json:"offset"`
+	Limit  int64  `json:"limit"`
+	Offset int64  `json:"offset"`
+	TypeID int64  `json:"type_id"`
+	Search string `json:"search"`
 }
 
 type CampaignCount struct {
@@ -164,11 +166,37 @@ type CampaignCount struct {
 }
 
 func (repository *CampaignRepositoryImpl) GetMany(ctx context.Context, arg GetManyCampaignParams) ([]model.Campaign, int64, error) {
-	sqlStatement := "SELECT * FROM campaigns ORDER BY id DESC"
+	sqlStatement := "SELECT * FROM campaigns"
+	if arg.TypeID > 0 {
+		if arg.Search != "" {
+			sqlStatement += " WHERE type_id = $1 AND LOWER(title) LIKE $2'"
+		} else {
+			sqlStatement += " WHERE type_id = $1"
+		}
+	} else {
+		if arg.Search != "" {
+			sqlStatement += " WHERE LOWER(title) LIKE $1"
+		}
+	}
+
+	sqlStatement += " ORDER BY id DESC"
+
 	if arg.Limit < 1 {
 		sqlStatement += " LIMIT (SELECT COUNT(id) FROM campaigns) OFFSET 0"
 	} else {
-		sqlStatement += " LIMIT $1 OFFSET $2"
+		if arg.TypeID > 0 {
+			if arg.Search != "" {
+				sqlStatement += " LIMIT $3 OFFSET $4"
+			} else {
+				sqlStatement += " LIMIT $2 OFFSET $3"
+			}
+		} else {
+			if arg.Search != "" {
+				sqlStatement += " LIMIT $2 OFFSET $3"
+			} else {
+				sqlStatement += " LIMIT $1 OFFSET $2"
+			}
+		}
 	}
 
 	var campaignCount CampaignCount
@@ -176,9 +204,33 @@ func (repository *CampaignRepositoryImpl) GetMany(ctx context.Context, arg GetMa
 	var err error
 
 	if arg.Limit < 1 {
-		rows, err = repository.DB.QueryContext(ctx, sqlStatement)
+		if arg.TypeID > 0 {
+			if arg.Search != "" {
+				rows, err = repository.DB.QueryContext(ctx, sqlStatement, arg.TypeID, arg.Search)
+			} else {
+				rows, err = repository.DB.QueryContext(ctx, sqlStatement)
+			}
+		} else {
+			if arg.Search != "" {
+				rows, err = repository.DB.QueryContext(ctx, sqlStatement, arg.Search)
+			} else {
+				rows, err = repository.DB.QueryContext(ctx, sqlStatement)
+			}
+		}
 	} else {
-		rows, err = repository.DB.QueryContext(ctx, sqlStatement, arg.Limit, arg.Offset)
+		if arg.TypeID > 0 {
+			if arg.Search != "" {
+				rows, err = repository.DB.QueryContext(ctx, sqlStatement, arg.TypeID, arg.Search, arg.Limit, arg.Offset)
+			} else {
+				rows, err = repository.DB.QueryContext(ctx, sqlStatement, arg.TypeID, arg.Limit, arg.Offset)
+			}
+		} else {
+			if arg.Search != "" {
+				rows, err = repository.DB.QueryContext(ctx, sqlStatement, arg.Search, arg.Limit, arg.Offset)
+			} else {
+				rows, err = repository.DB.QueryContext(ctx, sqlStatement, arg.Limit, arg.Offset)
+			}
+		}
 	}
 
 	if err != nil {
@@ -212,7 +264,34 @@ func (repository *CampaignRepositoryImpl) GetMany(ctx context.Context, arg GetMa
 	}
 
 	sqlStatement = "SELECT COUNT(1) AS campaign_count FROM campaigns"
-	row := repository.DB.QueryRowContext(ctx, sqlStatement)
+
+	if arg.TypeID > 0 {
+		sqlStatement += " WHERE type_id = $1"
+	}
+
+	if arg.Search != "" {
+		if arg.TypeID > 0 {
+			sqlStatement += " AND LOWER(title) LIKE $2"
+		} else {
+			sqlStatement += " WHERE LOWER(title) LIKE $1"
+		}
+	}
+
+	var row *sql.Row
+
+	if arg.TypeID > 0 {
+		if arg.Search != "" {
+			row = repository.DB.QueryRowContext(ctx, sqlStatement, arg.TypeID, arg.Search)
+		} else {
+			row = repository.DB.QueryRowContext(ctx, sqlStatement, arg.TypeID)
+		}
+	} else {
+		if arg.Search != "" {
+			row = repository.DB.QueryRowContext(ctx, sqlStatement, arg.Search)
+		} else {
+			row = repository.DB.QueryRowContext(ctx, sqlStatement)
+		}
+	}
 
 	err = row.Scan(
 		&campaignCount.CampaignCount,

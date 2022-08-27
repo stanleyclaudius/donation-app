@@ -129,8 +129,10 @@ func (service *CampaignServiceImpl) GetCampaign(ctx *gin.Context) {
 }
 
 type GetCampaignsQueryString struct {
-	Page  int64 `form:"page"`
-	Limit int64 `form:"limit"`
+	Page   int64  `form:"page"`
+	Limit  int64  `form:"limit"`
+	TypeID int64  `form:"type_id"`
+	Search string `form:"search"`
 }
 
 func (service *CampaignServiceImpl) GetCampaigns(ctx *gin.Context) {
@@ -143,6 +145,8 @@ func (service *CampaignServiceImpl) GetCampaigns(ctx *gin.Context) {
 	arg := repository.GetManyCampaignParams{
 		Limit:  req.Limit,
 		Offset: (req.Page - 1) * req.Limit,
+		TypeID: req.TypeID,
+		Search: req.Search,
 	}
 
 	campaigns, campaignCount, err := service.CampaignRepository.GetMany(ctx, arg)
