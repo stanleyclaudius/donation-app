@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"donation_app/pkg/model"
+	"time"
 )
 
 type FundraiserRepositoryImpl struct {
@@ -14,6 +15,18 @@ func NewFundraiserRepository(db *sql.DB) FundraiserRepository {
 	return &FundraiserRepositoryImpl{
 		DB: db,
 	}
+}
+
+type JoinedFundraiserData struct {
+	ID          int64     `json:"id"`
+	UserID      int64     `json:"user_id"`
+	Name        string    `json:"name"`
+	Avatar      string    `json:"avatar"`
+	Email       string    `json:"email"`
+	Phone       string    `json:"phone"`
+	Address     string    `json:"address"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type SaveFundraiserParams struct {
@@ -93,14 +106,19 @@ type GetManyFundraiserParams struct {
 	Offset int64 `json:"offset"`
 }
 
-func (repository *FundraiserRepositoryImpl) GetMany(ctx context.Context, arg GetManyFundraiserParams) ([]model.Fundraiser, error) {
-	sqlStatement := "SELECT * FROM fundraisers"
+type FundraiserCount struct {
+	FundraiserCount int64 `json:"fundraiser_count"`
+}
+
+func (repository *FundraiserRepositoryImpl) GetMany(ctx context.Context, arg GetManyFundraiserParams) ([]JoinedFundraiserData, int64, error) {
+	sqlStatement := "SELECT F.id, F.user_id, U.name AS name, U.avatar AS avatar, U.email AS email, F.phone AS phone, F.address AS address, F.description AS description, F.created_at AS created_at FROM fundraisers F JOIN users U ON F.user_id = U.id WHERE is_active = false"
 	if arg.Limit < 1 {
-		sqlStatement += " LIMIT (SELECT COUNT(id) FROM fundraisers) OFFSET 0"
+		sqlStatement += " LIMIT (SELECT COUNT(id) FROM fundraisers WHERE is_active = false) OFFSET 0"
 	} else {
 		sqlStatement += " LIMIT $1 OFFSET $2"
 	}
 
+	var fundraiserCount FundraiserCount
 	var rows *sql.Rows
 	var err error
 
@@ -111,40 +129,53 @@ func (repository *FundraiserRepositoryImpl) GetMany(ctx context.Context, arg Get
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer rows.Close()
 
-	items := []model.Fundraiser{}
+	items := []JoinedFundraiserData{}
 
 	for rows.Next() {
-		var i model.Fundraiser
+		var i JoinedFundraiserData
 
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
+			&i.Name,
+			&i.Avatar,
+			&i.Email,
 			&i.Phone,
 			&i.Address,
 			&i.Description,
-			&i.IsActive,
 			&i.CreatedAt,
 		); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		items = append(items, i)
 	}
 
+	sqlStatement = "SELECT COUNT(1) FROM fundraisers WHERE is_active = false"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement)
+
+	err = row.Scan(
+		&fundraiserCount.FundraiserCount,
+	)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
 	if err := rows.Close(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return items, nil
+	return items, fundraiserCount.FundraiserCount, nil
 }
 
 type UpdateFundraiserStatusParams struct {

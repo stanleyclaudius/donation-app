@@ -6,6 +6,7 @@ import authSlice from './slice/authSlice'
 import typeSlice from './slice/typeSlice'
 import fundraiserCampaignSlice from './slice/fundraiserCampaignSlice'
 import campaignDetailSlice from './slice/campaignDetailSlice'
+import fundraiserVerificationSlice from './slice/fundraiserVerificationSlice'
 
 interface IProps {
   children: ReactNode
@@ -17,7 +18,8 @@ const store = configureStore({
     auth: authSlice,
     campaign_type: typeSlice,
     fundraiser_campaign: fundraiserCampaignSlice,
-    campaign_detail: campaignDetailSlice
+    campaign_detail: campaignDetailSlice,
+    fundraiser_verification: fundraiserVerificationSlice
   }
 })
 

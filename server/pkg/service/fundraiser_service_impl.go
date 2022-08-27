@@ -78,7 +78,7 @@ func (service *FundraiserServiceImpl) CreateFundraiser(ctx *gin.Context) {
 
 type GetAllFundraisersQueryString struct {
 	Page  int64 `form:"page"`
-	Limit int64 `fomr:"limit"`
+	Limit int64 `form:"limit"`
 }
 
 func (service *FundraiserServiceImpl) GetAllFundraisers(ctx *gin.Context) {
@@ -93,13 +93,24 @@ func (service *FundraiserServiceImpl) GetAllFundraisers(ctx *gin.Context) {
 		Offset: (req.Page - 1) * req.Limit,
 	}
 
-	fundraisers, err := service.FundraiserRepository.GetMany(ctx, arg)
+	fundraisers, fundraiserCount, err := service.FundraiserRepository.GetMany(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve fundraisers. Please try again later."})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"fundraisers": fundraisers})
+	totalPage := 0
+	if arg.Limit != 0 {
+		if fundraiserCount%arg.Limit == 0 {
+			totalPage = int(fundraiserCount / arg.Limit)
+		} else {
+			totalPage = int(fundraiserCount/arg.Limit) + 1
+		}
+	} else {
+		totalPage = 1
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"fundraisers": fundraisers, "total_page": totalPage})
 }
 
 type ChangeFundraiserStatusRequest struct {

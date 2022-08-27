@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineClose } from 'react-icons/ai'
-import { FormSubmit, InputChange } from '../../utils/Interface'
+import { FormSubmit, InputChange } from './../../utils/Interface'
+import { AppDispatch, RootState } from './../../redux/store'
+import { postDataAPI } from '../../utils/fetchData'
+import Loader from '../general/Loader'
 
 interface IProps {
   openModal: boolean
@@ -8,6 +12,9 @@ interface IProps {
 }
 
 const CreateFundraiserModal = ({ openModal, setOpenModal }: IProps) => {
+  const dispatch = useDispatch<AppDispatch>()
+  const { auth, alert } = useSelector((state: RootState) => state)
+
   const [fundraiserData, setFundraiserData] = useState({
     phone: '',
     address: '',
@@ -21,8 +28,61 @@ const CreateFundraiserModal = ({ openModal, setOpenModal }: IProps) => {
     setFundraiserData({ ...fundraiserData, [name]: value })
   }
 
-  const handleSubmit = (e: FormSubmit) => {
+  const handleSubmit = async(e: FormSubmit) => {
     e.preventDefault()
+
+    if (!fundraiserData.phone) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide fundraiser phone number.'
+        }
+      })
+    }
+
+    if (!fundraiserData.address) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide fundraiser address.'
+        }
+      })
+    }
+
+    if (!fundraiserData.description) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide fundraiser description.'
+        }
+      })
+    }
+
+    try {
+      dispatch({
+        type: 'alert/alert',
+        payload: {
+          loading: true
+        }
+      })
+
+      await postDataAPI('fundraiser', fundraiserData, auth.access_token)
+      dispatch({
+        type: 'alert/alert',
+        payload: {
+          success: 'Fundraiser information has been submitted successfully. Please wait for verification.'
+        }
+      })
+
+      setOpenModal(false)
+    } catch (err: any) {
+      dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: err.response.data.error
+        }
+      })
+    }
   }
 
   useEffect(() => {
@@ -56,7 +116,13 @@ const CreateFundraiserModal = ({ openModal, setOpenModal }: IProps) => {
             <label htmlFor='description' className='text-sm'>Description</label>
             <textarea id='description' name='description' value={fundraiserData.description} onChange={handleChange} className='border border-gray-300 outline-0 p-2 h-32 mt-3 text-sm rounded-md w-full resize-none' />
           </div>
-          <button type='submit' className='bg-orange-400 hover:bg-orange-500 text-sm text-white w-24 h-10 rounded-md float-right transition-[background]'>Submit</button>
+          <button type='submit' disabled={alert.loading ? true : false} className={`${alert.loading ? 'bg-gray-200 hover:bg-gray-200 cursor-default' : 'bg-orange-400 hover:bg-orange-500 cursor-pointer'} text-sm text-white w-24 h-10 rounded-md float-right transition-[background]`}>
+            {
+              alert.loading
+              ? <Loader />
+              : 'Submit'
+            }
+          </button>
           <div className='clear-both' />
         </form>
       </div>

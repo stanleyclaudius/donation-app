@@ -64,7 +64,10 @@ const Navbar = () => {
           {
             auth.access_token &&
             <>
-              <button onClick={() => setOpenCreateFundraiserModal(true)} className='text-white text-sm bg-blue-500 hover:bg-blue-600 px-4 py-3 transition-[background]'>Become a Fundraiser</button>
+              {
+                auth.user?.role === 'user' &&
+                <button onClick={() => setOpenCreateFundraiserModal(true)} className='text-white text-sm bg-blue-500 hover:bg-blue-600 px-4 py-3 transition-[background]'>Become a Fundraiser</button>
+              }
               <div ref={dropdownRef} className='relative'>
                 <div onClick={() => setOpenDropdown(!openDropdown)} className='outline outline-3 outline-gray-300 w-10 h-10 rounded-full cursor-pointer'>
                   <img src={auth.user?.avatar} alt={auth.user?.name} />

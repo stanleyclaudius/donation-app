@@ -138,3 +138,31 @@ export interface IWithdraw {
   amount: number
   created_at: string
 }
+
+export interface IFundraiserVerificationState {
+  data: IFundraiser[]
+  total_page: number
+}
+
+export interface IFundraiser {
+  id: number
+  user_id: number
+  name: string
+  avatar: string
+  email: string
+  phone: string
+  address: string
+  description: string
+  created_at: string
+}
+
+
+export interface IGetFundraiserData {
+  access_token: string
+  page: number
+}
+
+export interface IChangeFundraiserStatusData {
+  id: number
+  access_token: string
+}
