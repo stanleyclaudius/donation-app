@@ -98,25 +98,25 @@ func (service *CampaignServiceImpl) CreateCampaign(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"campaign": campaign, "type": campaignType.Title, "type_id": campaignType.ID})
 }
 
-type CampaignIDURI struct {
-	ID int64 `uri:"id" binding:"required"`
+type CampaignSlugURI struct {
+	Slug string `uri:"slug" binding:"required"`
 }
 
 func (service *CampaignServiceImpl) GetCampaign(ctx *gin.Context) {
-	var req CampaignIDURI
+	var req CampaignSlugURI
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide campaign ID."})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Please provide campaign slug."})
 		return
 	}
 
-	arg := repository.CampaignIDParams{
-		ID: req.ID,
+	arg := repository.CampaignSlugParams{
+		Slug: req.Slug,
 	}
 
-	campaign, err := service.CampaignRepository.GetOneByID(ctx, arg)
+	campaign, err := service.CampaignRepository.GetOneBySlug(ctx, arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err := fmt.Errorf("campaign with id %d not found", req.ID)
+			err := fmt.Errorf("campaign with slug %s not found", req.Slug)
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
@@ -197,6 +197,10 @@ func (service *CampaignServiceImpl) GetFundraiserCampaigns(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"campaigns": campaigns, "total_page": totalPage})
+}
+
+type CampaignIDURI struct {
+	ID int64 `uri:"id" binding:"required"`
 }
 
 func (service *CampaignServiceImpl) DeleteCampaign(ctx *gin.Context) {

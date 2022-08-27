@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"donation_app/pkg/model"
+	"time"
 )
 
 type DonationRepositoryImpl struct {
@@ -14,6 +15,16 @@ func NewDonationRepository(db *sql.DB) DonationRepository {
 	return &DonationRepositoryImpl{
 		DB: db,
 	}
+}
+
+type JoinedDonationData struct {
+	ID          int64     `json:"id"`
+	Avatar      string    `json:"avatar"`
+	Name        string    `json:"name"`
+	Amount      float64   `json:"amount"`
+	Words       string    `json:"words"`
+	IsAnonymous bool      `json:"is_anonymous"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type SaveDonationParams struct {
@@ -110,8 +121,8 @@ type GetManyDonationByCampaignParams struct {
 	Offset     int64 `json:"offset"`
 }
 
-func (repository *DonationRepositoryImpl) GetManyByCampaign(ctx context.Context, arg GetManyDonationByCampaignParams) ([]model.Donation, error) {
-	sqlStatement := "SELECT * FROM donations WHERE campaign_id = $1"
+func (repository *DonationRepositoryImpl) GetManyByCampaign(ctx context.Context, arg GetManyDonationByCampaignParams) ([]JoinedDonationData, error) {
+	sqlStatement := "SELECT D.id, U.avatar, U.name, D.amount, D.words, D.is_anonymous, D.created_at FROM donations D JOIN users U ON D.user_id = U.id WHERE campaign_id = $1 ORDER BY id DESC"
 
 	if arg.Limit < 1 {
 		sqlStatement += " LIMIT (SELECT COUNT(id) FROM donations WHERE campaign_id = $1) OFFSET 0"
@@ -134,15 +145,15 @@ func (repository *DonationRepositoryImpl) GetManyByCampaign(ctx context.Context,
 
 	defer rows.Close()
 
-	items := []model.Donation{}
+	items := []JoinedDonationData{}
 
 	for rows.Next() {
-		var i model.Donation
+		var i JoinedDonationData
 
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
-			&i.CampaignID,
+			&i.Avatar,
+			&i.Name,
 			&i.Amount,
 			&i.Words,
 			&i.IsAnonymous,

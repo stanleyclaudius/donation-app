@@ -99,16 +99,20 @@ type CampaignSlugParams struct {
 	Slug string `json:"slug"`
 }
 
-func (repository *CampaignRepositoryImpl) GetOneBySlug(ctx context.Context, arg CampaignSlugParams) (model.Campaign, error) {
-	var campaign model.Campaign
+func (repository *CampaignRepositoryImpl) GetOneBySlug(ctx context.Context, arg CampaignSlugParams) (JoinedCampaignData, error) {
+	var campaign JoinedCampaignData
 
-	sqlStatement := "SELECT * FROM campaigns WHERE slug = $1"
+	sqlStatement := "SELECT C.id, T.title as type, T.id as type_id, U.name AS fundraiser_name, F.phone AS fundraiser_phone, F.address AS fundraiser_address, F.description AS fundraiser_description, C.title, C.description, C.image, C.collected_amount, C.target_amount, C.withdrawn_amount, C.slug, C.created_at FROM campaigns C JOIN fundraisers F ON C.fundraiser_id = F.id JOIN types T ON c.type_id = T.id JOIN users U ON F.user_id = U.id WHERE slug = $1"
 	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.Slug)
 
 	err := row.Scan(
 		&campaign.ID,
-		&campaign.FundraiserID,
+		&campaign.Type,
 		&campaign.TypeID,
+		&campaign.FundraiserName,
+		&campaign.FundraiserPhone,
+		&campaign.FundraiserAddress,
+		&campaign.FundraiserDescription,
 		&campaign.Title,
 		&campaign.Description,
 		&campaign.Image,

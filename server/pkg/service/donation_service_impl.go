@@ -30,7 +30,7 @@ func NewDonationService(db *sql.DB) DonationService {
 type CreateDonationRequest struct {
 	CampaignID  int64   `json:"campaign_id" binding:"required"`
 	Amount      float64 `json:"amount" binding:"required"`
-	Words       string  `json:"words" binding:"required"`
+	Words       string  `json:"words"`
 	IsAnonymous bool    `json:"is_anonymous"`
 }
 

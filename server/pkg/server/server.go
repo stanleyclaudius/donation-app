@@ -67,7 +67,7 @@ func (server *Server) InitRouter() {
 	adminGroup.DELETE("/fundraiser/:id", fundraiserService.DeleteFundraiser)
 
 	fundraiserGroup.POST("/campaign", campaignService.CreateCampaign)
-	routerGroup.GET("/campaign/:id", campaignService.GetCampaign)
+	routerGroup.GET("/campaign/:slug", campaignService.GetCampaign)
 	routerGroup.GET("/campaign", campaignService.GetCampaigns)
 	fundraiserGroup.GET("/campaign/fundraiser", campaignService.GetFundraiserCampaigns)
 	fundraiserGroup.DELETE("/campaign/:id", campaignService.DeleteCampaign)

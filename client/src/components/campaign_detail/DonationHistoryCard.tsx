@@ -12,7 +12,7 @@ const DonationHistoryCard = ({ name, prayer, amount, date, avatar }: IProps) => 
   return (
     <div className='flex gap-6 mb-12'>
       <div className='w-14 h-14 rounded-full outline outline-offset-1 outline-gray-300 shrink-0'>
-        {/* <img src={avatar} alt={name} className='w-full h-full rounded-full' /> */}
+        <img src={avatar} alt={name} className='w-full h-full rounded-full' />
       </div>
       <div>
         <h1 className='font-medium'>{name}</h1>

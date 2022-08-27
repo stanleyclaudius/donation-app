@@ -1,15 +1,25 @@
 import { useState, useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineClose } from 'react-icons/ai'
 import { FormSubmit, InputChange } from '../../utils/Interface'
+import { AppDispatch, RootState } from '../../redux/store'
+import { createDonation } from '../../redux/slice/campaignDetailSlice'
+import Loader from '../general/Loader'
 
 interface IProps {
   openModal: boolean
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>
+  campaignId: number
 }
 
-const DonateModal = ({ openModal, setOpenModal }: IProps) => {
+const DonateModal = ({ openModal, setOpenModal, campaignId }: IProps) => {
+  const dispatch = useDispatch<AppDispatch>()
+  const { auth, alert } = useSelector((state: RootState) => state)
+
   const [donateData, setDonateData] = useState({
-    amount: 0
+    amount: 0,
+    words: '',
+    is_anonymous: false
   })
 
   const modalRef = useRef() as React.MutableRefObject<HTMLDivElement>
@@ -21,6 +31,19 @@ const DonateModal = ({ openModal, setOpenModal }: IProps) => {
 
   const handleSubmit = (e: FormSubmit) => {
     e.preventDefault()
+
+    if (!donateData.amount) {
+      return dispatch({
+        type: 'alert/alert',
+        payload: {
+          error: 'Please provide donation amount.'
+        }
+      })
+    }
+
+    dispatch(createDonation({ campaign_id: campaignId, ...donateData, auth  }))
+
+    setOpenModal(false)
   }
 
   useEffect(() => {
@@ -47,8 +70,22 @@ const DonateModal = ({ openModal, setOpenModal }: IProps) => {
               <label htmlFor='amount' className='text-sm'>Amount</label>
               <input type='number' name='amount' id='amount' value={donateData.amount} onChange={handleChange} className='w-full indent-2 text-sm outline-0 border border-gray-300 rounded-md h-10 mt-3' />
             </div>
-            <button type='submit' className='bg-orange-400 hover:bg-orange-500 transition-[background] text-white text-sm rounded-md w-24 h-10 float-right'>Donate</button>
-            <div className='clear-both' />
+            <div className='mb-8'>
+              <label htmlFor='words' className='text-sm'>Prayer</label>
+              <input type='text' name='words' id='words' value={donateData.words} onChange={handleChange} className='w-full indent-2 text-sm outline-0 border border-gray-300 rounded-md h-10 mt-3' />
+            </div>
+            <div className='flex items-center justify-between'>
+              <div onClick={() => setDonateData({ ...donateData, is_anonymous: !donateData.is_anonymous })} className={`text-sm border border-gray-300 p-3 rounded-md w-fit cursor-pointer hover:border-blue-500 hover:border-2 ${donateData.is_anonymous ? 'border-blue-500 border-2' : undefined}`}>
+                <p>Stay Anonymous</p>
+              </div>
+              <button type='submit' disabled={alert.loading ? true : false} className={`${alert.loading ? 'bg-gray-200 hover:bg-gray-200 cursor-default' : 'bg-orange-400 hover:bg-orange-500 cursor-pointer'} transition-[background] text-white text-sm rounded-md w-24 h-10`}>
+                {
+                  alert.loading
+                  ? <Loader />
+                  : 'Donate'
+                }
+              </button>
+            </div>
           </form>
         </div>
       </div>

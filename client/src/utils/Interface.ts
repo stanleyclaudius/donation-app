@@ -103,3 +103,26 @@ export interface IUpdateFundraiserCampaignData {
   image: File | string
   access_token: string
 }
+
+export interface ICampaignDetailState {
+  data: ICampaign | undefined,
+  donations: IDonation[]
+}
+
+export interface IDonation {
+  id: number
+  avatar: string
+  name: string
+  amount: number
+  words: string
+  is_anonymous: boolean
+  created_at: string
+}
+
+export interface ICreateDonationData {
+  campaign_id: number
+  amount: number
+  words: string
+  is_anonymous: boolean
+  auth: IAuthState
+}

@@ -8,7 +8,7 @@ import (
 type CampaignRepository interface {
 	Save(ctx context.Context, arg SaveCampaignParams) (model.Campaign, error)
 	GetOneByID(ctx context.Context, arg CampaignIDParams) (model.Campaign, error)
-	GetOneBySlug(ctx context.Context, arg CampaignSlugParams) (model.Campaign, error)
+	GetOneBySlug(ctx context.Context, arg CampaignSlugParams) (JoinedCampaignData, error)
 	GetOneByFundraiserID(ctx context.Context, arg GetOneCampaignByFundraiserParams) (model.Campaign, error)
 	GetMany(ctx context.Context, arg GetManyCampaignParams) ([]model.Campaign, int64, error)
 	GetManyByFundraiser(ctx context.Context, arg GetManyCampaignByFundraiserParams) ([]JoinedCampaignData, int64, error)

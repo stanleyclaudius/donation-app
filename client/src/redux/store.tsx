@@ -5,6 +5,7 @@ import alertSlice from './slice/alertSlice'
 import authSlice from './slice/authSlice'
 import typeSlice from './slice/typeSlice'
 import fundraiserCampaignSlice from './slice/fundraiserCampaignSlice'
+import campaignDetailSlice from './slice/campaignDetailSlice'
 
 interface IProps {
   children: ReactNode
@@ -15,7 +16,8 @@ const store = configureStore({
     alert: alertSlice,
     auth: authSlice,
     campaign_type: typeSlice,
-    fundraiser_campaign: fundraiserCampaignSlice
+    fundraiser_campaign: fundraiserCampaignSlice,
+    campaign_detail: campaignDetailSlice
   }
 })
 
