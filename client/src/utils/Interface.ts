@@ -166,3 +166,22 @@ export interface IChangeFundraiserStatusData {
   id: number
   access_token: string
 }
+
+export interface IHistoryState {
+  data: IHistory[]
+  total_page: number
+}
+
+export interface IHistory {
+  id: number
+  image: string
+  title: string
+  slug: string
+  amount: number
+  created_at: string
+}
+
+export interface IGetHistoryData {
+  access_token: string
+  page: number
+}

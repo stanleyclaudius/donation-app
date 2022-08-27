@@ -7,6 +7,7 @@ import typeSlice from './slice/typeSlice'
 import fundraiserCampaignSlice from './slice/fundraiserCampaignSlice'
 import campaignDetailSlice from './slice/campaignDetailSlice'
 import fundraiserVerificationSlice from './slice/fundraiserVerificationSlice'
+import historySlice from './slice/historySlice'
 
 interface IProps {
   children: ReactNode
@@ -19,7 +20,8 @@ const store = configureStore({
     campaign_type: typeSlice,
     fundraiser_campaign: fundraiserCampaignSlice,
     campaign_detail: campaignDetailSlice,
-    fundraiser_verification: fundraiserVerificationSlice
+    fundraiser_verification: fundraiserVerificationSlice,
+    history: historySlice
   }
 })
 

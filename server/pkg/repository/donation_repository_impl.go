@@ -17,6 +17,15 @@ func NewDonationRepository(db *sql.DB) DonationRepository {
 	}
 }
 
+type JoinedHistoryData struct {
+	ID        int64     `json:"id"`
+	Image     string    `json:"image"`
+	Title     string    `json:"title"`
+	Slug      string    `json:"slug"`
+	Amount    float64   `json:"amount"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type JoinedDonationData struct {
 	ID          int64     `json:"id"`
 	Avatar      string    `json:"avatar"`
@@ -60,8 +69,12 @@ type GetManyDonationByUserParams struct {
 	Offset int64 `json:"offset"`
 }
 
-func (repository *DonationRepositoryImpl) GetManyByUser(ctx context.Context, arg GetManyDonationByUserParams) ([]model.Donation, error) {
-	sqlStatement := "SELECT * FROM donations WHERE user_id = $1"
+type DonationCount struct {
+	DonationCount int64 `json:"donation_count"`
+}
+
+func (repository *DonationRepositoryImpl) GetManyByUser(ctx context.Context, arg GetManyDonationByUserParams) ([]JoinedHistoryData, int64, error) {
+	sqlStatement := "SELECT D.id, C.image AS image, C.title AS title, C.slug AS slug, D.amount as amount, D.created_at AS created_at FROM donations D JOIN campaigns C ON D.campaign_id = C.id WHERE user_id = $1 ORDER BY id DESC"
 
 	if arg.Limit < 1 {
 		sqlStatement += " LIMIT (SELECT COUNT(id) FROM donations WHERE user_id = $1) OFFSET 0"
@@ -69,6 +82,7 @@ func (repository *DonationRepositoryImpl) GetManyByUser(ctx context.Context, arg
 		sqlStatement += " LIMIT $2 OFFSET $3"
 	}
 
+	var donationCount DonationCount
 	var rows *sql.Rows
 	var err error
 
@@ -79,40 +93,50 @@ func (repository *DonationRepositoryImpl) GetManyByUser(ctx context.Context, arg
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer rows.Close()
 
-	items := []model.Donation{}
+	items := []JoinedHistoryData{}
 
 	for rows.Next() {
-		var i model.Donation
+		var i JoinedHistoryData
 
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
-			&i.CampaignID,
+			&i.Image,
+			&i.Title,
+			&i.Slug,
 			&i.Amount,
-			&i.Words,
-			&i.IsAnonymous,
 			&i.CreatedAt,
 		); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		items = append(items, i)
 	}
 
+	sqlStatement = "SELECT COUNT(1) AS donation_count FROM donations WHERE user_id = $1"
+	row := repository.DB.QueryRowContext(ctx, sqlStatement, arg.UserID)
+
+	err = row.Scan(
+		&donationCount.DonationCount,
+	)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
 	if err := rows.Close(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return items, nil
+	return items, donationCount.DonationCount, nil
 }
 
 type GetManyDonationByCampaignParams struct {

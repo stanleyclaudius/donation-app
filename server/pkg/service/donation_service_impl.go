@@ -107,13 +107,24 @@ func (service *DonationServiceImpl) GetDonationHistory(ctx *gin.Context) {
 		Offset: (req.Page - 1) * req.Limit,
 	}
 
-	donations, err := service.DonationRepository.GetManyByUser(ctx, arg)
+	donations, donationCount, err := service.DonationRepository.GetManyByUser(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve donation history. Please try again later."})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"donations": donations})
+	totalPage := 0
+	if arg.Limit != 0 {
+		if donationCount%arg.Limit == 0 {
+			totalPage = int(donationCount / arg.Limit)
+		} else {
+			totalPage = int(donationCount/arg.Limit) + 1
+		}
+	} else {
+		totalPage = 1
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"donations": donations, "total_page": totalPage})
 }
 
 type GetCampaignDonationURI struct {
