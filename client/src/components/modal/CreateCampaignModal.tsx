@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineClose } from 'react-icons/ai'
-import { getDataAPI } from '../../utils/fetchData'
-import { FormSubmit, ICampaign, InputChange, IType } from '../../utils/Interface'
+import { getDataAPI } from './../../utils/fetchData'
+import { FormSubmit, ICampaign, InputChange, IType } from './../../utils/Interface'
 import { AppDispatch, RootState } from './../../redux/store'
-import Loader from '../general/Loader'
-import { createCampaign, updateCampaign } from '../../redux/slice/fundraiserCampaignSlice'
+import { createCampaign, updateCampaign } from './../../redux/slice/fundraiserCampaignSlice'
+import Loader from './../general/Loader'
 
 interface IProps {
   openModal: boolean

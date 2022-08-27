@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getDataAPI, postDataAPI } from '../../utils/fetchData'
-import { IAuthState, ILoginData } from '../../utils/Interface'
+import { getDataAPI, postDataAPI } from './../../utils/fetchData'
+import { IAuthState, ILoginData } from './../../utils/Interface'
 
 const initialState: IAuthState = {}
 

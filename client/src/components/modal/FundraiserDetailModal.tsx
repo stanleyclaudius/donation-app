@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { AiOutlineClose } from 'react-icons/ai'
 import { FaBuilding, FaPhoneAlt } from 'react-icons/fa'
 import { MdDescription } from 'react-icons/md'
-import { IFundraiser } from '../../utils/Interface'
+import { IFundraiser } from './../../utils/Interface'
 
 interface IProps {
   openModal: boolean

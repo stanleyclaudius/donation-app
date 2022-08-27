@@ -1,4 +1,4 @@
-import { currencyFormatter } from "../../utils/helper"
+import { currencyFormatter } from './../../utils/helper'
 
 interface IProps {
   name: string

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { deleteDataAPI, getDataAPI, patchDataAPI, postDataAPI } from '../../utils/fetchData'
-import { RootState } from '../store'
+import { deleteDataAPI, getDataAPI, patchDataAPI, postDataAPI } from './../../utils/fetchData'
 import { ICreateTypeData, IDeleteTypeData, ITypeState, IUpdateTypeData } from './../../utils/Interface'
+import { RootState } from './../store'
 
 const initialState: ITypeState = {
   data: [],

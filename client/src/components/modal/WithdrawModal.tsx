@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineClose } from 'react-icons/ai'
-import { FormSubmit, ICampaign, InputChange } from '../../utils/Interface'
-import { AppDispatch, RootState } from '../../redux/store'
-import { createWithdraw } from '../../redux/slice/fundraiserCampaignSlice'
-import Loader from '../general/Loader'
+import { FormSubmit, ICampaign, InputChange } from './../../utils/Interface'
+import { AppDispatch, RootState } from './../../redux/store'
+import { createWithdraw } from './../../redux/slice/fundraiserCampaignSlice'
+import Loader from './../general/Loader'
 
 interface IProps {
   openModal: boolean

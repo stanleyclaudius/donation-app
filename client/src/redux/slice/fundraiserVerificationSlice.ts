@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { deleteDataAPI, getDataAPI, patchDataAPI } from '../../utils/fetchData'
-import { IChangeFundraiserStatusData, IFundraiserVerificationState, IGetFundraiserData } from '../../utils/Interface'
-import { RootState } from '../store'
+import { deleteDataAPI, getDataAPI, patchDataAPI } from './../../utils/fetchData'
+import { IChangeFundraiserStatusData, IFundraiserVerificationState, IGetFundraiserData } from './../../utils/Interface'
+import { RootState } from './../store'
 
 const initialState: IFundraiserVerificationState = {
   data: [],

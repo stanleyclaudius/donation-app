@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineClose } from 'react-icons/ai'
 import { FormSubmit, InputChange } from './../../utils/Interface'
 import { AppDispatch, RootState } from './../../redux/store'
-import { postDataAPI } from '../../utils/fetchData'
-import Loader from '../general/Loader'
+import { postDataAPI } from './../../utils/fetchData'
+import Loader from './../general/Loader'
 
 interface IProps {
   openModal: boolean

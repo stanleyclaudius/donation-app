@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { AiOutlineClose } from 'react-icons/ai'
-import { getDataAPI } from '../../utils/fetchData'
-import { ICampaign, IDonation } from '../../utils/Interface'
-import DonationHistoryCard from '../campaign_detail/DonationHistoryCard'
+import { ICampaign, IDonation } from './../../utils/Interface'
+import { getDataAPI } from './../../utils/fetchData'
+import DonationHistoryCard from './../campaign_detail/DonationHistoryCard'
 
 interface IProps {
   openModal: boolean

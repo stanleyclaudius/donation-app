@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from './../redux/store'
+import { getHistory } from './../redux/slice/historySlice'
 import HistoryCard from './../components/history/HistoryCard'
 import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
-import { AppDispatch, RootState } from '../redux/store'
-import { getHistory } from '../redux/slice/historySlice'
-import Pagination from '../components/general/Pagination'
+import Pagination from './../components/general/Pagination'
 
 const History = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
   const { auth, history } = useSelector((state: RootState) => state)
 
@@ -16,6 +18,12 @@ const History = () => {
   useEffect(() => {
     dispatch(getHistory({ access_token: auth.access_token!, page }))
   }, [dispatch, auth.access_token, page])
+
+  useEffect(() => {
+    if (!auth.access_token) {
+      navigate('/')
+    }
+  }, [auth, navigate])
 
   return (
     <>

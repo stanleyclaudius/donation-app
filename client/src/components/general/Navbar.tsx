@@ -5,8 +5,8 @@ import { GiHamburgerMenu } from 'react-icons/gi'
 import { AiOutlineClose } from 'react-icons/ai'
 import { AppDispatch, RootState } from './../../redux/store'
 import { logout } from './../../redux/slice/authSlice'
+import CreateFundraiserModal from './../modal/CreateFundraiserModal'
 import NavbarLink from './NavbarLink'
-import CreateFundraiserModal from '../modal/CreateFundraiserModal'
 
 const Navbar = () => {
   const dispatch = useDispatch<AppDispatch>()

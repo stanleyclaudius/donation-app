@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { deleteDataAPI, getDataAPI, patchDataAPI, postDataAPI } from '../../utils/fetchData'
-import { uploadImage } from '../../utils/imageHelper'
-import { ICreateCampaignData, ICreateWithdrawData, IDeleteCampaignData, IFundraiserCampaignState, IGetFundraiserCampaignsData, IUpdateFundraiserCampaignData } from '../../utils/Interface'
-import { RootState } from '../store'
+import { deleteDataAPI, getDataAPI, patchDataAPI, postDataAPI } from './../../utils/fetchData'
+import { uploadImage } from './../../utils/imageHelper'
+import { ICreateCampaignData, ICreateWithdrawData, IDeleteCampaignData, IFundraiserCampaignState, IGetFundraiserCampaignsData, IUpdateFundraiserCampaignData } from './../../utils/Interface'
+import { RootState } from './../store'
 
 const initialState: IFundraiserCampaignState = {
   data: [],

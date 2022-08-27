@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { AiFillCaretDown, AiOutlineSearch } from 'react-icons/ai'
-import CampaignCard from '../components/general/CampaignCard'
-import Pagination from '../components/general/Pagination'
-import { getDataAPI } from '../utils/fetchData'
-import { ICampaign, IType } from '../utils/Interface'
+import { ICampaign, IType } from './../utils/Interface'
+import { getDataAPI } from './../utils/fetchData'
+import CampaignCard from './../components/general/CampaignCard'
+import Pagination from './../components/general/Pagination'
 import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
 

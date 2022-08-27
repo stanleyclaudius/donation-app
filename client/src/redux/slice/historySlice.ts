@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getDataAPI } from '../../utils/fetchData'
+import { getDataAPI } from './../../utils/fetchData'
 import { IGetHistoryData, IHistoryState } from './../../utils/Interface'
 
 const initialState: IHistoryState = {

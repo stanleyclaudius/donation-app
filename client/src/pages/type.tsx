@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from './../redux/store'
 import { deleteType, getType } from './../redux/slice/typeSlice'
+import { dateFormatter } from './../utils/helper'
+import { IType } from './../utils/Interface'
+import Pagination from './../components/general/Pagination'
 import CreateTypeModal from './../components/modal/CreateTypeModal'
 import Navbar from './../components/general/Navbar'
 import DeleteModal from './../components/modal/DeleteModal'
 import Footer from './../components/general/Footer'
-import { IType } from './../utils/Interface'
-import { dateFormatter } from '../utils/helper'
-import Pagination from '../components/general/Pagination'
 
 const CampaignType = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
   const { auth, campaign_type } = useSelector((state: RootState) => state)
 
@@ -42,6 +44,12 @@ const CampaignType = () => {
   useEffect(() => {
     dispatch(getType(page))
   }, [dispatch, page])
+
+  useEffect(() => {
+    if (!auth.access_token || (auth.access_token && auth.user?.role !== 'admin')) {
+      navigate('/')
+    }
+  }, [auth, navigate])
 
   return (
     <>

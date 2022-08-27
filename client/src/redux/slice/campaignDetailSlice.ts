@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getDataAPI, postDataAPI } from '../../utils/fetchData'
-import { ICampaignDetailState, ICreateDonationData } from '../../utils/Interface'
-import { RootState } from '../store'
+import { getDataAPI, postDataAPI } from './../../utils/fetchData'
+import { ICampaignDetailState, ICreateDonationData } from './../../utils/Interface'
+import { RootState } from './../store'
 
 const initialState: ICampaignDetailState = {
   data: undefined,

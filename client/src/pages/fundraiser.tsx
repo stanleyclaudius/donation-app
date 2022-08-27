@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import Pagination from '../components/general/Pagination'
-import FundraiserDetailModal from '../components/modal/FundraiserDetailModal'
-import { acceptFundraiser, getFundraiser, rejectFundraiser } from '../redux/slice/fundraiserVerificationSlice'
-import { AppDispatch, RootState } from '../redux/store'
-import { dateFormatter } from '../utils/helper'
-import { IFundraiser } from '../utils/Interface'
+import { acceptFundraiser, getFundraiser, rejectFundraiser } from './../redux/slice/fundraiserVerificationSlice'
+import { AppDispatch, RootState } from './../redux/store'
+import { dateFormatter } from './../utils/helper'
+import { IFundraiser } from './../utils/Interface'
 import Footer from './../components/general/Footer'
 import Navbar from './../components/general/Navbar'
+import Pagination from './../components/general/Pagination'
+import FundraiserDetailModal from './../components/modal/FundraiserDetailModal'
 
 const Fundraiser = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
   const { auth, fundraiser_verification } = useSelector((state: RootState) => state)
 
@@ -25,6 +27,12 @@ const Fundraiser = () => {
   useEffect(() => {
     dispatch(getFundraiser({ access_token: auth.access_token!, page }))
   }, [dispatch, auth.access_token, page])
+
+  useEffect(() => {
+    if (!auth.access_token || (auth.access_token && auth.user?.role !== 'admin')) {
+      navigate('/')
+    }
+  }, [auth, navigate])
 
   return (
     <>

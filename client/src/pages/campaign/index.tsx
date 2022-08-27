@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { currencyFormatter, dateFormatter } from './../../utils/helper'
 import { AppDispatch, RootState } from './../../redux/store'
+import { deleteCampaign, getFundraiserCampaigns } from './../../redux/slice/fundraiserCampaignSlice'
+import { ICampaign } from './../../utils/Interface'
 import Footer from './../../components/general/Footer'
 import Navbar from './../../components/general/Navbar'
 import DeleteModal from './../../components/modal/DeleteModal'
 import CreateCampaignModal from './../../components/modal/CreateCampaignModal'
 import DonationModal from './../../components/modal/DonationModal'
 import WithdrawModal from './../../components/modal/WithdrawModal'
-import { deleteCampaign, getFundraiserCampaigns } from '../../redux/slice/fundraiserCampaignSlice'
-import { ICampaign } from '../../utils/Interface'
-import Pagination from '../../components/general/Pagination'
+import Pagination from './../../components/general/Pagination'
 
 const FundraiserCampaign = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
   const { auth, fundraiser_campaign } = useSelector((state: RootState) => state)
 
@@ -59,6 +61,12 @@ const FundraiserCampaign = () => {
       dispatch(getFundraiserCampaigns({ access_token: auth.access_token, page }))
     }
   }, [dispatch, auth.access_token, page])
+
+  useEffect(() => {
+    if (!auth.access_token || (auth.access_token && auth.user?.role !== 'fundraiser')) {
+      navigate('/')
+    }
+  }, [auth, navigate])
 
   return (
     <>
